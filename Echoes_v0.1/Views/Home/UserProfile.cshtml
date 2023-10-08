@@ -1,0 +1,31 @@
+﻿@model ApplicationUser
+
+@if (Model != null)
+{
+    <div>
+        <div class="mb-3">
+            <partial name="_UserPartialView.cshtml" for="@Model" />
+        </div>
+
+        @if (ViewBag.UserId == Model.Id)
+        {
+            <div class="card-footer">
+                <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary mx-2">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+            </div>
+        }
+    </div>
+    @*@if (Model.Posts != null)
+    {
+        <h1>Images from @Model.Name!</h1>
+        <br />
+        @foreach (PostModel pm in Model.Posts)
+        {
+            <div class="d-flex flex-wrap">
+                <partial name="_ImagePartial.cshtml" for="@pm" />
+                @*<partial name="_PostPartial.cshtml" for="@pm" />
+            </div>
+        }
+    }*@
+}

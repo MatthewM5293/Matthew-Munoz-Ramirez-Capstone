@@ -18,7 +18,7 @@ public class ApplicationUser : IdentityUser
     //Will be image later
 
     public string ProfilePicture { get; set; } = "https://cdn-icons-png.flaticon.com/512/3177/3177440.png";
-    public string Username { get; set; }
+    //public string Username { get; set; }
     
     public string Name { get; set; }
     
@@ -27,6 +27,8 @@ public class ApplicationUser : IdentityUser
     public DateTime? DateOfBirth { get; set; }
     
     //Posts
+
+    //Tag Object
     
     public ApplicationUser()
     {

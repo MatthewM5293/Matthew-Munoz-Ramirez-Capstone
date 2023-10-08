@@ -1,0 +1,24 @@
+﻿@model ApplicationUser
+
+@if (Model == null)
+{
+}
+else
+{
+    <div class="card mb-3 align-content-center align-self-center text-center">
+        <h3 class="card-header">
+            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" class="card-header">
+                @Model.Name
+            </a>
+        </h3>
+        <div class="card-body">
+            <h5 class="card-title"> <img width="500" height="auto" src="@Model.ProfilePicture" /> </h5>
+            <h6 class="card-title">@Model.Email</h6>
+            <h7 class="card-title">@Model.Name</h7>
+        </div>
+        <div class="card-body">
+            <h3>About me:</h3>
+            <p class="card-text">@Model.Bio</p>
+        </div>
+    </div>
+}

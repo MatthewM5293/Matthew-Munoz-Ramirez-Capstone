@@ -30,13 +30,16 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender//,
+            //RoleManager<IdentityRole> roleManager
+            )
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -44,6 +47,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            //_roleManager = roleManager;
         }
 
         /// <summary>
@@ -81,16 +85,17 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             public string Email { get; set; }
             
             [Required]
+            [DataType(DataType.Text)]
+            [Display(Name = "Full Name")]
+            [RegularExpression(@"^[A-Za-z0-9@~`!@#$%^&*()_=+\\\\';:\""\\/?>.<,-]*$")]
+            public string Name { get; set; }
+
+            [Required]
+            [StringLength(30, ErrorMessage = "Username must be between 2-16 characters", MinimumLength = 1)]
+            [DataType(DataType.Text), RegularExpression(@"^[A-Za-z0-9_.]*$")]
             [Display(Name = "Username")]
             public string Username { get; set; }
-            [Required]
-            [Display(Name = "Name")]
-            public string Name { get; set; }
-            // Removed Nickname field
-            // [Required]
-            // [Display(Name = "Nickname")]
-            // public string Nickname { get; set; }
-            
+                        
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -114,6 +119,13 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            //Admin roles
+            //if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
+            //{
+            //    _roleManager.CreateAsync(new IdentityRole("Admin")).GetAwaiter().GetResult();
+            //    _roleManager.CreateAsync(new IdentityRole("User")).GetAwaiter().GetResult();
+            //}
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -131,7 +143,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 
                 //custom fields
-                user.Username = Input.Username;
+                user.UserName = Input.Username;
                 user.Name = Input.Name;
                 // user.Nickname = Input.Nickname;
 

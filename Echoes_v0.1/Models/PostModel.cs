@@ -28,19 +28,25 @@ public class PostModel
     public Guid UserId { get; set; }
 
     [Required]
-    public string Description { get; set; }
+    public string Caption { get; set; }
     
-    //Images or Videos go here once I figure out how to allow videos to display
+    ///Images or Videos go here once I figure out how to allow videos to display
     
-    //temp images
-    public String? ImageUrl { get; set; }
+    ///temp solution for images
+    public String? ImageUrl { get; set; } //temporaily uses a url as the image source
+
+
     
-    public DateTime PostDate { get; set; }
-    public DateTime? EditDate { get; set; }
-    
-    //Comments may go here but Filtering using which Post the comments belong to could be simpler
-    
-    
+    public DateTime PostDate { get; set; } = DateTime.Now; //sets Posted time to now
+    public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
+
+    ///Comments may go here but Filtering using which Post the comments belong to could be simpler
+    //public List<CommentModel> Comments { get; set; }
+
+    ///Toggle Comments feature
+    //public bool CommentsEnabled { get; set; } = true;
+
+
     //Empty Constructor 
     public PostModel()
     {

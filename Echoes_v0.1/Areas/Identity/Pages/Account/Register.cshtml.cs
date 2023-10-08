@@ -87,7 +87,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Full Name")]
-            [RegularExpression(@"^[A-Za-z0-9@~`!@#$%^&*()_=+\\\\';:\""\\/?>.<,-]*$")]
+            [RegularExpression(@"^[A-Za-z0-9@~`!@#$%^&*()_=+\\\\';:\""\\/?>.<, -]*$")]
             public string Name { get; set; }
 
             [Required]
@@ -140,12 +140,13 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                //custom fields
+                user.Uname = Input.Username;
+                user.Name = Input.Name;
+                
+                //Creates User
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 
-                //custom fields
-                user.UserName = Input.Username;
-                user.Name = Input.Name;
-                // user.Nickname = Input.Nickname;
 
                 if (result.Succeeded)
                 {
@@ -198,6 +199,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             }
         }
 
+        //For email verification
         private IUserEmailStore<IdentityUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)

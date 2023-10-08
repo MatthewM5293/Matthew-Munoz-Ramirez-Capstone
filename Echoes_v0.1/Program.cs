@@ -10,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
+    //options.UseSqlite(connectionString)); //sql server
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -23,7 +24,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 
 builder.Services.AddTransient<IDataAccessLayer, EchoesDBDAL>(); //DAL for Models
-//builder.Services.AddSingleton<IEmailSender, EmailSender>(); //for Roles
+//builder.Services.AddSingleton<IEmailSender, EmailSender>(); //for Emails
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

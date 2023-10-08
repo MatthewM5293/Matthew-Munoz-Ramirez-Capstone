@@ -1,17 +1,29 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Echoes_v0._1.Models;
+using Echoes_v0._1.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Echoes_v0._1.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    //private readonly ILogger<HomeController> _logger;
+    private static string UserId;
+    private static int? PostId;
+    private static string UserName;
 
-    public HomeController(ILogger<HomeController> logger)
+    IDataAccessLayer dal;
+    public HomeController(IDataAccessLayer indal)
     {
-        _logger = logger;
+        dal = indal;
     }
+
+    //public HomeController(ILogger<HomeController> logger)
+    //{
+    //    _logger = logger;
+    //}
 
     public IActionResult Index()
     {

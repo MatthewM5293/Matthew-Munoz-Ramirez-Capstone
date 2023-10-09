@@ -4,12 +4,8 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing;
-using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +16,6 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
     public class IndexModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
-        //private readonly UserManager<ApplicationUser> _appUserManager; //Doesn't work as intended
         private readonly SignInManager<IdentityUser> _signInManager;
 
         public IndexModel(
@@ -64,7 +59,6 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
-
             //edit name
             //edit Username
             //edit Bio
@@ -94,27 +88,21 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Birthday")]
             public DateTime DOB { get; set; }
 
-
         }
 
         private async Task LoadAsync(IdentityUser user)
         {
-            //var userName = await _userManager.GetUserNameAsync(user); //email
+            var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-            var userName = user.Email;
-            //var phoneNumber = user.PhoneNumber;
-
             //Need a way to get Application User instead of Identity User
-            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var temp = Globals.dal.GetUser(id); //gets App User (hopefuly)
+            string id = _userManager.GetUserId(User);
+            var temp = Globals.dal.GetUser(id); //gets App User (causes error, does not know what an ApplicationUser is)
             var uname = temp.Uname ?? string.Empty;
             var name = temp.Name ?? string.Empty;
             var bio = temp.Bio ?? string.Empty;
             var profiePicture = temp.ProfilePicture ?? string.Empty;
             var dob = temp.DateOfBirth.Value;
-
-            //email
             Username = userName;
 
             Input = new InputModel

@@ -4,13 +4,8 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing;
-using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Echoes_v0._1.Data;
-using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -20,16 +15,13 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
     public class IndexModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly UserManager<ApplicationUser> _appuserManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            UserManager<ApplicationUser> AppuserManager,
             SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
-            _appuserManager = AppuserManager;
             _signInManager = signInManager;
         }
 
@@ -66,65 +58,18 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
-
-            //edit name
-            //edit Username
-            //edit Bio
-            //edit Profile Picture
-            [Required]
-            [StringLength(30, ErrorMessage = "Username must be between 2-16 characters", MinimumLength = 1)]
-            [DataType(DataType.Text), RegularExpression(@"^[A-Za-z0-9_.]*$")]
-            [Display(Name = "Username")]
-            public string Uname { get; set; }
-
-
-            [Required]
-            [DataType(DataType.Text)]
-            [Display(Name = "Name")]
-            [RegularExpression(@"^[A-Za-z0-9@~`!@#$%^&*()_=+\\\\';:\""\\/?>.<, -]*$")]
-            public string Name { get; set; }
-            
-            [Display(Name = "Bio")]
-            public string Bio { get; set; }
-
-            [Required]
-            [DataType(DataType.ImageUrl)]
-            [Display(Name = "Profile Picture")]
-            public string ProfilePicture { get; set; }
-            
-            [DataType(DataType.Date)]
-            [Display(Name = "Birthday")]
-            public DateTime DOB { get; set; }
-
-
         }
 
-        private async Task LoadAsync(ApplicationUser user)
+        private async Task LoadAsync(IdentityUser user)
         {
-            //var userName = await _userManager.GetUserNameAsync(user);
-            //var userName = await _userManager.GetUserNameAsync(user);
-            user = await _appuserManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
-            var userName = user.Email;
-            var phoneNumber = user.PhoneNumber;
+            var userName = await _userManager.GetUserNameAsync(user);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-
-            var uname = user.Uname ?? string.Empty;
-            var name = user.Name ?? string.Empty;
-            var bio = user.Bio ?? string.Empty;
-            var profiePicture = user.ProfilePicture ?? string.Empty;
-            var dob = user.DateOfBirth.Value;
-
-            //email
             Username = userName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber,
-                Uname = uname,
-                Name = name,
-                Bio = bio,
-                DOB = dob,
-                ProfilePicture = profiePicture
+                PhoneNumber = phoneNumber
             };
         }
 
@@ -136,7 +81,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            await LoadAsync((ApplicationUser)user);
+            await LoadAsync(user);
             return Page();
         }
 
@@ -150,7 +95,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
 
             if (!ModelState.IsValid)
             {
-                await LoadAsync((ApplicationUser)user);
+                await LoadAsync(user);
                 return Page();
             }
 

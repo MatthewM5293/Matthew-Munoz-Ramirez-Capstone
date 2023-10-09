@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using System.Drawing;
+using System.Security.Claims;
 
 namespace Echoes_v0._1.Models;
 
@@ -35,4 +37,48 @@ public class ApplicationUser : IdentityUser
     public ApplicationUser()
     {
     }
+}
+
+public class ApplicationUserManager : UserManager<ApplicationUser>
+{
+    public ApplicationUserManager(IUserStore<ApplicationUser> store, IOptions<IdentityOptions> optionsAccessor, 
+        IPasswordHasher<ApplicationUser> passwordHasher, IEnumerable<IUserValidator<ApplicationUser>> userValidators, 
+        IEnumerable<IPasswordValidator<ApplicationUser>> passwordValidators, ILookupNormalizer keyNormalizer, 
+        IdentityErrorDescriber errors, IServiceProvider services, ILogger<UserManager<ApplicationUser>> logger)
+        : base
+        (
+            store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, 
+            services, logger)
+    {
+
+    }
+
+    public virtual string? GetApplicationUserName(ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            throw new ArgumentNullException(nameof(principal));
+        }
+        return principal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType);
+    }
+
+    public virtual string? GetUserProfilePicture(ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            throw new ArgumentNullException(nameof(principal));
+        }
+        return principal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType); //return Profile picture
+    }
+
+    public virtual string? GetUserName(ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            throw new ArgumentNullException(nameof(principal));
+        }
+        return principal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType); //return Profile picture
+    }
+
+
 }

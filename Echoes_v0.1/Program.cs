@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Echoes_v0._1.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Echoes_v0._1.Interfaces;
+using Echoes_v0._1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +19,13 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 //User roles
-//builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-//    .AddDefaultTokenProviders()
-//    .AddEntityFrameworkStores<ApplicationDbContext>();
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+  //  .AddDefaultTokenProviders()
+    //.AddEntityFrameworkStores<ApplicationDbContext>();
+    //.AddUserStore<ApplicationUserStore>()
+    //.AddRoleStore<ApplicationRoleStore>()
+    //.AddUserManager<ApplicationUserManager>()
+    //.AddRoleManager<ApplicationRoleManager>()
 
 
 builder.Services.AddTransient<IDataAccessLayer, EchoesDBDAL>(); //DAL for Models

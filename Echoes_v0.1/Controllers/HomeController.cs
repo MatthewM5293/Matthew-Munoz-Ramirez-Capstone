@@ -14,10 +14,10 @@ public class HomeController : Controller
     private static int? PostId;
     private static string UserName;
 
-    IDataAccessLayer dal;
     public HomeController(IDataAccessLayer indal)
     {
-        dal = indal;
+        //dal = indal;
+        Globals.dal = indal;
     }
 
     //public HomeController(ILogger<HomeController> logger)

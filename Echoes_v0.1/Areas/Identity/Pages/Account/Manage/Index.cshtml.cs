@@ -20,16 +20,14 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
     public class IndexModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly UserManager<ApplicationUser> _appuserManager;
+        //private readonly UserManager<ApplicationUser> _appUserManager; //Doesn't work as intended
         private readonly SignInManager<IdentityUser> _signInManager;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            UserManager<ApplicationUser> AppuserManager,
             SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
-            _appuserManager = AppuserManager;
             _signInManager = signInManager;
         }
 
@@ -99,20 +97,22 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
 
         }
 
-        private async Task LoadAsync(ApplicationUser user)
+        private async Task LoadAsync(IdentityUser user)
         {
-            //var userName = await _userManager.GetUserNameAsync(user);
-            //var userName = await _userManager.GetUserNameAsync(user);
-            user = await _appuserManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            //var userName = await _userManager.GetUserNameAsync(user); //email
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+
             var userName = user.Email;
-            var phoneNumber = user.PhoneNumber;
+            //var phoneNumber = user.PhoneNumber;
 
-
-            var uname = user.Uname ?? string.Empty;
-            var name = user.Name ?? string.Empty;
-            var bio = user.Bio ?? string.Empty;
-            var profiePicture = user.ProfilePicture ?? string.Empty;
-            var dob = user.DateOfBirth.Value;
+            //Need a way to get Application User instead of Identity User
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var temp = Globals.dal.GetUser(id); //gets App User (hopefuly)
+            var uname = temp.Uname ?? string.Empty;
+            var name = temp.Name ?? string.Empty;
+            var bio = temp.Bio ?? string.Empty;
+            var profiePicture = temp.ProfilePicture ?? string.Empty;
+            var dob = temp.DateOfBirth.Value;
 
             //email
             Username = userName;
@@ -136,7 +136,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            await LoadAsync((ApplicationUser)user);
+            await LoadAsync(user);
             return Page();
         }
 
@@ -150,7 +150,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account.Manage
 
             if (!ModelState.IsValid)
             {
-                await LoadAsync((ApplicationUser)user);
+                await LoadAsync(user);
                 return Page();
             }
 

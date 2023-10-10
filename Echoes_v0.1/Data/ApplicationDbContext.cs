@@ -11,5 +11,11 @@ public class ApplicationDbContext : IdentityDbContext
     {
     }
 
-    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+    public DbSet<Echoes_v0._1.Models.ApplicationUser> ApplicationUsers { get; set; } = default!;
+
+    //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+    public DbSet<Echoes_v0._1.Models.PostModel> PostModel { get; set; } = default!;
 }

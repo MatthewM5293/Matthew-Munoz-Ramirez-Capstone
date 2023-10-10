@@ -1,0 +1,53 @@
+﻿@page
+@model Echoesv2.Pages.EditProfileModel
+@{
+    ViewData["Title"] = "EditProfile";
+}
+
+<h1>Edit Profile</h1>
+
+@*<partial name="_StatusMessage" for="StatusMessage" />*@
+<div class="row">
+    <div class="col-md-6">
+        <form id="editProfileForm" method="post"> @*asp-controller="Home" asp-action="EditProfile"*@
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <label asp-for="Input.Name" class="form-label">Name</label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Please enter your preffered name" />
+                @*<span></span> For Validating*@
+            </div>
+            <div class="form-floating mb-3">
+                <label asp-for="Input.Username" class="form-label">Username</label>
+                <input asp-for="Input.Username" class="form-control" placeholder="Please choose your username." />
+            </div>
+            <div class="form-floating mb-3">
+                <label asp-for="Input.Bio" class="form-label">Bio</label>
+                <input asp-for="Input.Bio" class="form-control" placeholder="Tell us about yourself." />
+            </div>
+            <div class="form-floating mb-3">
+                <label asp-for="Input.DOB" class="form-label">Birthday</label>
+                <input asp-for="Input.DOB" class="form-control"  />
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ProfilePicture" class="form-control" />
+                <label asp-for="Input.ProfilePicture" class="form-label">Profile Picture</label>
+              @*<input asp-for="Input.ProfilePicture" class="form-control" type="file" />
+                <label asp-for="Input.ProfilePicture" class="form-label">Profile Picture</label>*@
+            </div>
+
+               <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Update
+                    @*icon gotten from https://icons.getbootstrap.com*@
+                </button>
+        
+                @*<a asp-controller="Home" asp-action="Profile" class="btn btn-secondary">
+                    Back to Profile Page
+                </a>*@
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

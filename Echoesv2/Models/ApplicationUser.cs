@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Drawing;
 
-namespace Echoes_v0._1.Models;
+namespace Echoesv2.Models;
 
 public class ApplicationUser : IdentityUser
 {

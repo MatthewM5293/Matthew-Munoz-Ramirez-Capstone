@@ -14,10 +14,9 @@ public class HomeController : Controller
     private static int? PostId;
     private static string UserName;
 
-    IDataAccessLayer dal;
     public HomeController(IDataAccessLayer indal)
     {
-        dal = indal;
+        Globals.dal = indal;
     }
 
     //public HomeController(ILogger<HomeController> logger)
@@ -31,6 +30,23 @@ public class HomeController : Controller
     }
 
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    /// <summary>
+    /// Allows the User to edit their account profile
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public IActionResult EditProfile()
+    {
+        ViewData["Title"] = "EditProfile";
+        return View();
+    }
+    
+    [HttpGet]
+    public IActionResult CreatePost()
     {
         return View();
     }

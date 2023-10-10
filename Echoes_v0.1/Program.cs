@@ -43,6 +43,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 );
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 

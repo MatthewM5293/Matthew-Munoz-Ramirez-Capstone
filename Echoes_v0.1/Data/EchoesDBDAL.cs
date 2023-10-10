@@ -33,10 +33,18 @@ namespace Echoes_v0._1.Data
             //throw new NotImplementedException();
         }
 
-        public string GetUserName(string userId)
+        public string GetUserName(string userName)
         {
-            return EchoesDB.ApplicationUsers.Where(user => user.Id.Equals(userId)).FirstOrDefault().Name;
-            //throw new NotImplementedException();
+            //check if Username is taken
+            throw new NotImplementedException();
+            //var results = EchoesDB.ApplicationUsers.Where(user => user.Uname.Equals(userName)).FirstOrDefault();
+        }
+        
+        public bool IsValidUserName(string userName)
+        {
+            //check if Username is taken
+            var result = EchoesDB.ApplicationUsers.Any(user => user.Uname == userName);
+            return result;
         }
 
         public PostModel GetUserPost(int? id)

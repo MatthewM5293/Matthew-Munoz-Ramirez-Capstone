@@ -95,6 +95,7 @@ public class HomeController : Controller
         if (foundUser == null) return NotFound();
 
         if (!ap.ProfilePicture.Contains(".png") || !ap.ProfilePicture.Contains(".jpg")) ModelState.AddModelError("Invalid Image Format", "Invalid Format");
+        if (ap.Uname != foundUser.Uname && !dal.IsValidUserName(ap.Uname)) ModelState.AddModelError("Username Taken", "Username is being used by another user!");
 
         if (!ModelState.IsValid)
         {

@@ -10,7 +10,8 @@ namespace Echoes_v0._1.Interfaces
 
         public ApplicationUser GetUser(string? id);
 
-        public string GetUserName(string userId);
+        public string GetUserName(string userName);
+        public bool IsValidUserName(string userName);
 
         public IEnumerable<ApplicationUser> GetUsers();
 

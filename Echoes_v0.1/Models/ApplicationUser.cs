@@ -30,7 +30,7 @@ public class ApplicationUser : IdentityUser
     [StringLength(30, ErrorMessage = "Username must be between 2-16 characters", MinimumLength = 1)]
     [DataType(DataType.Text), RegularExpression(@"^[A-Za-z0-9_.]*$")]
     [Display(Name = "Username")]
-    public string Uname { get; set; } //Username for Application
+    public string Uname { get; set; } //Username for Application (Will be Unique)
 
 
     [Required]

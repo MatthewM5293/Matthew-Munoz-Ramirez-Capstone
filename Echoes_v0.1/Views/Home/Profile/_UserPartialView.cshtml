@@ -1,0 +1,29 @@
+﻿@model ApplicationUser
+
+@if (Model == null)
+{
+}
+else
+{
+    <div class="card mb-3 align-content-center align-self-center text-center">
+        <h3 class="card-header">
+            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" class="card-header">
+                @Model.Uname
+            </a>
+        </h3>
+        @*<h2 class="card-title">@Model.Name </h2>*@
+        <div class="card-body">
+            <h5 class="card-title"> <img width="500" height="auto" src="@Model.ProfilePicture" /> </h5>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">@Model.Name </h3>
+@*            <h3>About me:</h3>*@
+            <p class="card-text">@Model.Bio</p>
+            @if (Model.DateOfBirth.HasValue)
+            {
+                <p class="card-text">@Model.DateOfBirth.Value.ToShortDateString()</p>
+            }
+
+        </div>
+    </div>
+}

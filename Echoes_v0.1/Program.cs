@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Echoes_v0._1.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Echoes_v0._1.Interfaces;
+using Echoes_v0._1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddTransient<IDataAccessLayer, EchoesDBDAL>(); //DAL for Models
 //builder.Services.AddSingleton<IEmailSender, EmailSender>(); //for Emails
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddIdentityCore<IdentityUser>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

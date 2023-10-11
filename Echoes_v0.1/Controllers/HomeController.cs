@@ -4,30 +4,33 @@ using Echoes_v0._1.Models;
 using Echoes_v0._1.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace Echoes_v0._1.Controllers;
 
 [Authorize]
 public class HomeController : Controller
 {
-    //private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<HomeController> _logger;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IDataAccessLayer dal;
+
+    //properties
     private static string UserId;
-    private static int? PostId;
+    //private static string PostId;
     private static string UserName;
 
-    IDataAccessLayer dal;
-    public HomeController(IDataAccessLayer indal)
+    public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, UserManager<ApplicationUser> userManager)
     {
+        _logger = logger;
         dal = indal;
+        _userManager = userManager;
     }
-
-    //public HomeController(ILogger<HomeController> logger)
-    //{
-    //    _logger = logger;
-    //}
 
     public IActionResult Index()
     {
+        UserId = _userManager.GetUserId(User);
+        UserName = _userManager.Users.Where(u => u.Id.Equals(UserId)).FirstOrDefault().Uname;
         return View();
     }
 

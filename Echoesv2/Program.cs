@@ -1,9 +1,7 @@
 using Echoesv2.Data;
 using Echoesv2.Interfaces;
-using Echoesv2.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace Echoesv2
 {
@@ -19,12 +17,13 @@ namespace Echoesv2
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            
+
             builder.Services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizePage("/EditProfile");
+                options.Conventions.AuthorizePage("/Post/Create");
                 //options.Conventions.AuthorizeFolder("/Private");
             }
 

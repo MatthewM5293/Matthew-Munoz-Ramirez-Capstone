@@ -1,11 +1,35 @@
-﻿@{
+﻿@using Echoes_v0._1.Views.Home.Post;
+@{
     ViewData["Title"] = "Home";
 }
 
 <div class="text-center">
 @*    <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
-
-
     
+    @*Post shortcut*@
+    @*<div class="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create a Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        @await Html.PartialAsync("~/Views/Home/Post/Create.cshtml", new CreateModel())
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>  *@
+
+
+
 </div>

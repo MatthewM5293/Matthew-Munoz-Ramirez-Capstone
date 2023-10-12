@@ -42,7 +42,7 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
-    [Authorize]
+    #region Profile Functions
     [HttpGet]
     public IActionResult Profile()
     {
@@ -50,12 +50,15 @@ public class HomeController : Controller
         ViewBag.UserId = UserId;
 
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        ApplicationUser up = dal.GetUser(id);
+        if (id == null) return NotFound();
+        
+        ApplicationUser foundUser = dal.GetUser(id);
+        if (foundUser == null) return NotFound();
 
-
-        return View("Profile/Profile", up);
+        return View("Profile/Profile", foundUser);
     }
 
+    //[HttpPost]
     public IActionResult ProfilePost(string? id)
     {
         UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -69,7 +72,6 @@ public class HomeController : Controller
         return View("Profile/ProfilePost" ,foundUser);
     }
 
-    [Authorize]
     [HttpGet]
     public IActionResult EditProfile(string? id)
     {
@@ -113,5 +115,32 @@ public class HomeController : Controller
 
         return RedirectToAction("Profile", "Home");
     }
+    #endregion
+
+    #region Post Functions
+    
+    public IActionResult CreatePost()
+    {
+        return View("Post/Create");
+    }
+    
+    //display post
+    public IActionResult Post()
+    {
+        return View("Post/Details");
+    }
+
+    public IActionResult EditPost()
+    {
+        return View("Post/Edit");
+    }
+    
+    public IActionResult DeletePost()
+    {
+        return View("Post/Delete");
+    }
+    #endregion
+
+
 
 }

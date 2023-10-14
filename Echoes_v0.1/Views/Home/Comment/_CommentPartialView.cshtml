@@ -1,0 +1,33 @@
+﻿@model CommentModel
+
+@if (Model != null)
+{
+    <div class="list-group btn-success">
+        <div class="list-group-item">
+            <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId" class="list-group-item-action active a">
+                @Model.Username
+            </a>
+        </div>
+
+        <a class="list-group-item list-group-item-action disabled">@Model.Message</a>
+        <div class="list-group-item list-group-item-action">
+            <a>
+                @Model.PostDate
+            </a>
+
+            @if (ViewBag.UserId == Model.UserId)
+            {
+                <div class="align-right">
+                    <a asp-controller="Home" asp-action="EditComment" asp-route-id="@Model.PostDate" class="btn btn-primary mx-auto">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <a asp-controller="Home" asp-action="DeleteComment" asp-route-id="@Model.PostDate" class="btn btn-danger align-right mx-auto">
+                        <i class="bi bi-trash"></i> Delete
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+}
+

@@ -46,11 +46,15 @@ public class ApplicationUser : IdentityUser
     [DataType(DataType.Date)]
     [Display(Name = "Birthday")]
     public DateTime? DateOfBirth { get; set; }
-    
+
     //Posts
+    //public List<Guid> PostIds { get; set; }
+
+    //Comments from User
+    //public List<Guid> CommentIds { get; set; }
 
     //Tag Object
-    
+
     public ApplicationUser()
     {
     }

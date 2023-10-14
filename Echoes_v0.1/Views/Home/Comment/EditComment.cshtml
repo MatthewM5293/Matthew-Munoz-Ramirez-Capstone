@@ -1,0 +1,30 @@
+﻿@model CommentModel
+<form asp-controller="home" asp-action="EditComment" method="post">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Post</h2>
+            <hr />
+        </div>
+        <div class="mb-3">
+            <input asp-for="PostId" type="hidden" value="@Model.PostId" />
+            <input asp-for="UserId" type="hidden" value="@Model.UserId" />
+
+            <input asp-for="Username" type="hidden" value="@Model.Username" />
+            <input asp-for="PostDate" type="hidden" value="@Model.PostDate" />
+            <input asp-for="EditDate" type="hidden" value="@DateTime.Now" />
+        </div>
+        <div class="mb-3">
+            @*            asp binds it to the title in the model*@
+            <label asp-for="Message"></label>
+            <input asp-for="Message" class="form-control-plaintext" placeholder="Type here!" value="@Model.Message" />
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            Edit Comment
+        </button>
+
+        <a asp-controller="Home" asp-action="Explore" class="btn btn-secondary">
+            Back to Explore Page
+        </a>
+    </div>
+</form>

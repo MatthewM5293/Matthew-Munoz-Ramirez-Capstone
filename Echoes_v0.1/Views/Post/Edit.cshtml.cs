@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 
-namespace Echoes_v0._1.Views.Home.Post
+namespace Echoes_v0._1.Views.Post
 {
     public class EditModel : PageModel
     {
@@ -71,7 +71,7 @@ namespace Echoes_v0._1.Views.Home.Post
 
         private bool PostModelExists(Guid id)
         {
-          return (_context.PostModel?.Any(p => p.PostId == id)).GetValueOrDefault();
+          return (_context.PostModel?.Any(e => e.PostId == id)).GetValueOrDefault();
         }
     }
 }

@@ -8,18 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 
-namespace Echoes_v0._1.Views.Home.Post
+namespace Echoes_v0._1.Views.Post
 {
-    public class DetailsModel : PageModel
+    public class DeleteModel : PageModel
     {
         private readonly Echoes_v0._1.Data.ApplicationDbContext _context;
 
-        public DetailsModel(Echoes_v0._1.Data.ApplicationDbContext context)
+        public DeleteModel(Echoes_v0._1.Data.ApplicationDbContext context)
         {
             _context = context;
         }
 
-      public PostModel PostModel { get; set; } = default!; 
+        [BindProperty]
+      public PostModel PostModel { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
         {
@@ -29,6 +30,7 @@ namespace Echoes_v0._1.Views.Home.Post
             }
 
             var postmodel = await _context.PostModel.FirstOrDefaultAsync(m => m.PostId == id);
+
             if (postmodel == null)
             {
                 return NotFound();
@@ -38,6 +40,24 @@ namespace Echoes_v0._1.Views.Home.Post
                 PostModel = postmodel;
             }
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(Guid? id)
+        {
+            if (id == null || _context.PostModel == null)
+            {
+                return NotFound();
+            }
+            var postmodel = await _context.PostModel.FindAsync(id);
+
+            if (postmodel != null)
+            {
+                PostModel = postmodel;
+                _context.PostModel.Remove(PostModel);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
         }
     }
 }

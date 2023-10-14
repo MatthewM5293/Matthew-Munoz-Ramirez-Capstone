@@ -1,7 +1,13 @@
 ﻿@page
-@model Echoes_v0._1.Views.Home.Post.DeleteModel
+@model Echoes_v0._1.Views.Post.DetailsModel
 
-<h3>Are you sure you want to delete this?</h3>
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
 <div>
     <h4>PostModel</h4>
     <hr />
@@ -37,10 +43,8 @@
             @Html.DisplayFor(model => model.PostModel.EditDate)
         </dd>
     </dl>
-    
-    <form method="post">
-        <input type="hidden" asp-for="PostModel.PostId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-page="./Index">Back to List</a>
-    </form>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.PostModel?.PostId">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
 </div>

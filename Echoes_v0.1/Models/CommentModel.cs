@@ -28,7 +28,7 @@ public class CommentModel
     public string Username;
     public string Message;
     public DateTime PostDate;
-    public DateTime EditDate;
+    public DateTime? EditDate;
     
     public CommentModel()
     {

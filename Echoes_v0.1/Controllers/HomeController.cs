@@ -4,27 +4,30 @@ using Echoes_v0._1.Models;
 using Echoes_v0._1.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Echoes_v0._1.Data;
 
 namespace Echoes_v0._1.Controllers;
 
 [Authorize]
 public class HomeController : Controller
 {
-    //private readonly ILogger<HomeController> _logger;
-    private static string UserId;
+    private readonly ILogger<HomeController> _logger;
+    private static string? UserId;
     private static int? PostId;
-    private static string UserName;
+    private static string? UserName;
 
-    IDataAccessLayer dal;
-    public HomeController(IDataAccessLayer indal)
+    private readonly IDataAccessLayer dal;
+    private readonly ApplicationDbContext _context;
+
+    [BindProperty]
+    public PostModel PostModel { get; set; } = default!;
+
+    public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context)
     {
+        _logger = logger;
         dal = indal;
+        _context = context;
     }
-
-    //public HomeController(ILogger<HomeController> logger)
-    //{
-    //    _logger = logger;
-    //}
 
     public IActionResult Index()
     {
@@ -42,7 +45,7 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
-    #region Profile Functions
+    #region Profile Controls
     [HttpGet]
     public IActionResult Profile()
     {
@@ -59,7 +62,7 @@ public class HomeController : Controller
     }
 
     //[HttpPost]
-    public IActionResult ProfilePost(string? id)
+    public IActionResult Profile(string? id)
     {
         UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         ViewBag.UserId = UserId;
@@ -69,7 +72,7 @@ public class HomeController : Controller
         ApplicationUser foundUser = dal.GetUser(id);
         if (foundUser == null) return NotFound();
 
-        return View("Profile/ProfilePost" ,foundUser);
+        return View("Profile/ProfilePost", foundUser);
     }
 
     [HttpGet]
@@ -121,9 +124,31 @@ public class HomeController : Controller
     
     public IActionResult CreatePost()
     {
-        return View("Post/Create");
+        return View("Post/CreatePost");
     }
-    
+
+    [HttpPost]
+    public async Task<IActionResult> CreatePostAsync(PostModel post)
+    {
+        //
+        var temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        PostModel.UserId = new Guid(temp);
+
+        //to set Username and PFP
+        //post.Username = foundUser.UName;
+        //post.ProfilePicture = foundUser.ProfilePictureUrl;
+
+        if (!ModelState.IsValid || _context.PostModel == null || post == null)
+        {
+            return View();
+        }
+
+        _context.PostModel.Add(post);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
+    }
+
     //display post
     public IActionResult Post()
     {

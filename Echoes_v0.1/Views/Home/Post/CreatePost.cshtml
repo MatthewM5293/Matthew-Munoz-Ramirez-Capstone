@@ -1,0 +1,54 @@
+﻿@model PostModel
+
+<h1>Create</h1>
+
+<h4>Create a Post</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+@*                <label asp-for="@Model.UserId" class="control-label"></label>
+                <input asp-for="@Model.UserId" class="form-control" />
+                <span asp-validation-for="@Model.UserId" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Caption" class="control-label"></label>
+                <input asp-for="@Model.Caption" class="form-control" />
+                <span asp-validation-for="@Model.Caption" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.ImageUrl" class="control-label"></label>
+                <input asp-for="@Model.ImageUrl" class="form-control" />
+                <span asp-validation-for="@Model.ImageUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @*<label asp-for="@Model.PostDate" class="control-label"></label>*@
+                <input asp-for="@Model.PostDate" class="form-control" value="@DateTime.Now" type="hidden" />
+                @*<span asp-validation-for="@Model.PostDate" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+@*                <label asp-for="@Model.EditDate" class="control-label"></label>*@
+                <input asp-for="@Model.EditDate" class="form-control" value="null" type="hidden" />
+                @*<span asp-validation-for="@Model.EditDate" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @*<a asp-page="Index">Close</a>*@
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to Home Page</a>
+    <a onclick="history.go(-1)">Back</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

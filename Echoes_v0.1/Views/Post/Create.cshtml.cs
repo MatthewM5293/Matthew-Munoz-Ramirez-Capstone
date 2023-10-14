@@ -1,5 +1,4 @@
-﻿# 
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 
-namespace Echoes_v0._1.Views.Home.Post
+namespace Echoes_v0._1.Views.Post
 {
     public class CreateModel : PageModel
     {
@@ -18,10 +17,6 @@ namespace Echoes_v0._1.Views.Home.Post
         public CreateModel(Echoes_v0._1.Data.ApplicationDbContext context)
         {
             _context = context;
-        }
-
-        public CreateModel()
-        {
         }
 
         public IActionResult OnGet()
@@ -34,16 +29,15 @@ namespace Echoes_v0._1.Views.Home.Post
         
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public  IActionResult OnPost()
-        {   
-            PostModel.PostDate = DateTime.Now;
-            if (!ModelState.IsValid || _context.PostModel == null || PostModel == null)
+        public async Task<IActionResult> OnPostAsync()
+        {
+          if (!ModelState.IsValid || _context.PostModel == null || PostModel == null)
             {
                 return Page();
             }
 
             _context.PostModel.Add(PostModel);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

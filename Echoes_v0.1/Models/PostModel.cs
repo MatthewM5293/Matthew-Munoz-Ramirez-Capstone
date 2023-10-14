@@ -35,16 +35,21 @@ public class PostModel
     ///temp solution for images
     public String? ImageUrl { get; set; } //temporaily uses a url as the image source
 
-
-    
-    public DateTime PostDate { get; set; } = DateTime.Now; //sets Posted time to now
+    public DateTime PostDate { get; set; } //= DateTime.Now; //sets Posted time to now
     public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
 
     ///Comments may go here but Filtering using which Post the comments belong to could be simpler
     //public List<CommentModel> Comments { get; set; }
 
+    [ForeignKey("PostID")]
+    [NotMapped]
+    public IEnumerable<Guid>? Comments { get; set; }
+
+
     ///Toggle Comments feature
     //public bool CommentsEnabled { get; set; } = true;
+
+    //public bool IsArchived { get; set; } = false;
 
 
     //Empty Constructor 

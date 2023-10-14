@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 
-namespace Echoes_v0._1.Views.Home.Post
+namespace Echoes_v0._1.Views.Post
 {
     public class IndexModel : PageModel
     {

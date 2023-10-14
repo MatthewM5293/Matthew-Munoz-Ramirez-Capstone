@@ -1,0 +1,57 @@
+﻿@model PostModel
+
+@if (Model == null)
+{
+    <h3>No Post Found</h3>
+}
+
+<form method="post" asp-controller="home" asp-action="EditPost" class="card mx-auto">
+
+    <div class="border p-3 mt-4 text-center">
+        <div class="row pb-2">
+            <h3 class="text-primary">Post</h3>
+        </div>
+        <hr />
+        
+        @*hidden properties so no data is lost*@
+        <div class="mb-3">
+            <input asp-for="@Model.UserId" type="hidden" value="@Model.UserId" />
+            <input asp-for="@Model.PostDate" type="hidden" value="@Model.PostDate" />
+            <input asp-for="@Model.EditDate" type="hidden" value="@DateTime.Now" />
+            <input asp-for="UserId" type="hidden" value="@Model.UserId" />
+@*            <input asp-for="ProfilePicture" type="hidden" value="@Model.ProfilePicture" />*@
+            <input asp-for="@Model.ImageUrl" type="hidden" value="@Model.ImageUrl" />
+        </div>
+        
+        <div class="mb-3 card-body">
+            @*            asp binds it to the title in the model*@
+            @*<label asp-for="Text">Caption</label>
+            <hr/>*@
+            <textarea asp-for="@Model.Caption" class="card-subtitle text-muted" placeholder="Type here!" value="@Model.Caption" rows="10" ></textarea>
+            <span asp-validation-for="Caption" class="text-danger"></span>
+        </div>
+        <hr/>
+
+        <div class="mb-3">
+            @*            asp binds it to the title in the model*@
+            @*<label asp-for="Image"></label>*@
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            <img src="@Model.ImageUrl" />
+        </div>
+        @*Post date*@
+        <hr/>
+        <div class="card-footer text-muted">
+            Posted on: @Model.PostDate
+        </div>
+        <hr/>
+
+        <button type="submit" class="btn btn-primary">
+            Post Edit
+        </button>
+
+        @*<a asp-controller="Home" asp-action="Explore" class="btn btn-secondary">
+            Back to Home Page
+        </a>*@
+        <a href='javascript:history.go(-1)'>Return to to Home Page</a>
+    </div>
+</form>

@@ -161,12 +161,15 @@ public class HomeController : Controller
 
         if (!ModelState.IsValid || _context.PostModel == null || post == null)
         {
+            TempData["StatusMessage"] = "Post failed to update";
             return View("Post/CreatePost");
         }
 
         _context.PostModel.Add(post);
         await _context.SaveChangesAsync();
 
+
+        TempData["StatusMessage"] = "Post successfully created";
         return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
     }
 
@@ -193,15 +196,12 @@ public class HomeController : Controller
     {
         if (ModelState.IsValid)
         {
-            //ApplicationUser up = dal.GetUser(id);
-            //ApplicationUser up = _context.ApplicationUsers.FirstOrDefault(u => u.Id.ToString().Equals(UserId));
-            //postModel.ProfilePicture = up.ProfilePicture;
-            //dal.EditPost(postModel);
+            //check if post is different than original
 
             _context.PostModel.Update(postModel);
             await _context.SaveChangesAsync();
 
-
+            TempData["StatusMessage"] = "Post successfully updated";
             return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
         }
         return View();
@@ -325,7 +325,7 @@ public class HomeController : Controller
         }
         else 
         {
-            comment.PostId = Guid.Empty;
+            //comment.PostId = Guid.Empty;
             _context.CommentModel.Remove(comment); //dal method?
             await _context.SaveChangesAsync();
         }

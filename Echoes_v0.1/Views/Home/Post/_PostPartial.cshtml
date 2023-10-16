@@ -52,12 +52,12 @@
         
         @*Comments button, can be modal*@
         <div class="card-footer text-muted">
-            <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId" class="btn btn-success mx-2 text-right">
+            <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn btn-success mx-2 text-right">
                 <i class="bi bi-chat-left"></i> Add Comment
             </a>
 
             @*If post belongs to the current logged in user, they can edit or delete the Post*@
-            @if (ViewBag.UserId == Model.UserId)
+            @if (ViewBag.UserId == Model.UserId.ToString())
             {
                 <a asp-controller="Home" asp-action="EditPost" asp-route-id="@Model.PostId" class="btn btn-primary mx-2 text-right">
                     <i class="bi bi-pencil-square"></i> Edit
@@ -71,32 +71,32 @@
         </div>
 
             @*can be in an accordian*@
-        @*<div class = "card-footer text-muted">
-            @if (Model.Comments != null)
+        <div class = "card-footer text-muted">
+            @if (Model.Comments.Count > 0)
             {
-                Displays all comments
-                @foreach (var commentId in Model.CommentIds)
+                @*Displays all comments*@
+                @foreach (var comment in Model.Comments)
                 {
-                    <partial name="_CommentPartialView.cshtml" for="@commentId" />
+                    <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
 
-                   *If the comment belongs to the signed in User they can edit or delete the comment
-                    @if (ViewBag.UserId == comment.UserID)
+                   @*If the comment belongs to the signed in User they can edit or delete the comment*@
+                    @*@if (ViewBag.UserId == comment.UserId.ToString())
                     {
                         <div class="card-footer text-muted">
-                            <a asp-controller="Home" asp-action="EditComment" asp-route-id="@comment.Id" class="btn btn-primary mx-2">
+                            <a asp-controller="Home" asp-action="EditComment" asp-route-id="@comment.CommentId.ToString()" class="btn btn-primary mx-2">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </a>
 
-                            <a asp-controller="Home" asp-action="DeleteComment" asp-route-id="@comment.Id" class="btn btn-danger mx-2">
+                            <a asp-controller="Home" asp-action="DeleteComment" asp-route-comment="@Model" class="btn btn-danger mx-2">
                                 <i class="bi bi-trash"></i> Delete
                             </a>
                         </div>
-                    }
+                    }*@
 
                 }
 
             }
-        </div>*@
+        </div>
         
     </div>    
 }

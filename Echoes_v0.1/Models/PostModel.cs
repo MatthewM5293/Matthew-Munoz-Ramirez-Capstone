@@ -28,26 +28,31 @@ public class PostModel
     public Guid UserId { get; set; }
 
     [Required]
+    [MaxLength(255)]
     public string Caption { get; set; }
-    
+
     ///Images or Videos go here once I figure out how to allow videos to display
-    
+
     ///temp solution for images
+    [DataType(DataType.ImageUrl)]
     public String? ImageUrl { get; set; } //temporaily uses a url as the image source
 
+    [DataType(DataType.DateTime)]
     public DateTime PostDate { get; set; } //= DateTime.Now; //sets Posted time to now
+    
+    [DataType(DataType.DateTime)]
     public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
 
     ///Comments may go here but Filtering using which Post the comments belong to could be simpler
-    //public List<CommentModel> Comments { get; set; }
+    public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
 
-    [ForeignKey("PostID")]
+    //[ForeignKey("CommentID")]
     [NotMapped]
-    public IEnumerable<Guid>? Comments { get; set; }
+    public IEnumerable<Guid>? CommentIds { get; set; }
 
 
     ///Toggle Comments feature
-    //public bool CommentsEnabled { get; set; } = true;
+    public bool CommentsEnabled { get; set; } = true;
 
     //public bool IsArchived { get; set; } = false;
 

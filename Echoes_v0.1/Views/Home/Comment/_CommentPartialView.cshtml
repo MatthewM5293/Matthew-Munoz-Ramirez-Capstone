@@ -4,7 +4,7 @@
 {
     <div class="list-group btn-success">
         <div class="list-group-item">
-            <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId" class="list-group-item-action active a">
+            <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId.ToString()" class="list-group-item-action active a">
                 @Model.Username
             </a>
         </div>
@@ -15,13 +15,13 @@
                 @Model.PostDate
             </a>
 
-            @if (ViewBag.UserId == Model.UserId)
+            @if (ViewBag.UserId == Model.UserId.ToString())
             {
                 <div class="align-right">
-                    <a asp-controller="Home" asp-action="EditComment" asp-route-id="@Model.PostDate" class="btn btn-primary mx-auto">
+                    <a asp-controller="Home" asp-action="EditComment" asp-route-id="@Model.CommentId" class="btn btn-primary mx-auto">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
-                    <a asp-controller="Home" asp-action="DeleteComment" asp-route-id="@Model.PostDate" class="btn btn-danger align-right mx-auto">
+                    <a asp-controller="Home" asp-action="DeleteComment" asp-route-comment="@Model" class="btn btn-danger align-right mx-auto">
                         <i class="bi bi-trash"></i> Delete
                     </a>
                 </div>

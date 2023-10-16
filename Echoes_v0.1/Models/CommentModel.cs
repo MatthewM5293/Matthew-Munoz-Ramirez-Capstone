@@ -11,25 +11,33 @@ public class CommentModel
      * UserID
      * 
      * Username
-     * Message (can be null)
+     * Message (can't be null)
      * PostDate
      * EditDate
      */
 
     [Key] 
-    public Guid CommentId;
+    public Guid CommentId { get; set; }
     
     [ForeignKey("PostID")]
-    public Guid PostId;
-    
-    [ForeignKey("UserID")]
-    public Guid UserId;
+    public Guid PostId { get; set; }
 
-    public string Username;
-    public string Message;
-    public DateTime PostDate;
-    public DateTime? EditDate;
-    
+    [ForeignKey("UserID")]
+    public Guid UserId { get; set; }
+
+    public string Username { get; set; }
+
+    [Required]
+    [DataType(DataType.Text)]
+    public string Message { get; set; }
+
+    [Required]
+    [DataType(DataType.DateTime)]
+    public DateTime PostDate { get; set; }
+
+    [DataType(DataType.DateTime)]
+    public DateTime? EditDate { get; set; }
+
     public CommentModel()
     {
     }

@@ -15,6 +15,7 @@
         
         @*hidden properties so no data is lost*@
         <div class="mb-3">
+            <input asp-for="@Model.PostId" type="hidden" value="@Model.PostId" />
             <input asp-for="@Model.UserId" type="hidden" value="@Model.UserId" />
             <input asp-for="@Model.PostDate" type="hidden" value="@Model.PostDate" />
             <input asp-for="@Model.EditDate" type="hidden" value="@DateTime.Now" />

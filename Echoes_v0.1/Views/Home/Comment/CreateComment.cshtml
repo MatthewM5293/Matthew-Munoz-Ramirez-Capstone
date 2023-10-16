@@ -1,4 +1,5 @@
 ﻿@model CommentModel
+
 <form asp-controller="home" asp-action="AddComment" method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
@@ -6,7 +7,7 @@
             <hr />
         </div>
         <div class="mb-3">
-            <input asp-for="PostId" type="hidden" value="0" />
+            <input asp-for="PostId" type="hidden" value="@ViewBag" />
             <input asp-for="UserId" type="hidden" value="TEMP" />
 
             <input asp-for="Username" type="hidden" value="TEMP" />

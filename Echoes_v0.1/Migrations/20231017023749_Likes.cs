@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Echoes_v0._1.Migrations
 {
     /// <inheritdoc />
-    public partial class initializeDB : Migration
+    public partial class Likes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,23 +57,6 @@ namespace Echoes_v0._1.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CommentModel",
-                columns: table => new
-                {
-                    CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EditDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CommentModel", x => x.CommentId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PostModel",
                 columns: table => new
                 {
@@ -83,7 +66,8 @@ namespace Echoes_v0._1.Migrations
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EditDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CommentsEnabled = table.Column<bool>(type: "bit", nullable: false)
+                    CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LikeCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -196,6 +180,48 @@ namespace Echoes_v0._1.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CommentModel",
+                columns: table => new
+                {
+                    CommentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EditDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PostModelPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentModel", x => x.CommentId);
+                    table.ForeignKey(
+                        name: "FK_CommentModel_PostModel_PostModelPostId",
+                        column: x => x.PostModelPostId,
+                        principalTable: "PostModel",
+                        principalColumn: "PostId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LikeModel",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PostModelPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LikeModel", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LikeModel_PostModel_PostModelPostId",
+                        column: x => x.PostModelPostId,
+                        principalTable: "PostModel",
+                        principalColumn: "PostId");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -234,6 +260,16 @@ namespace Echoes_v0._1.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentModel_PostModelPostId",
+                table: "CommentModel",
+                column: "PostModelPostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LikeModel_PostModelPostId",
+                table: "LikeModel",
+                column: "PostModelPostId");
         }
 
         /// <inheritdoc />
@@ -258,13 +294,16 @@ namespace Echoes_v0._1.Migrations
                 name: "CommentModel");
 
             migrationBuilder.DropTable(
-                name: "PostModel");
+                name: "LikeModel");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "PostModel");
         }
     }
 }

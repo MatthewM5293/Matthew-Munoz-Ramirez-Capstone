@@ -44,12 +44,15 @@ public class HomeController : Controller
         //var posts = dal.GetPosts();
         var posts = _context.PostModel.ToList();
         var allComments = _context.CommentModel.ToList();
+        var allLikes = _context.LikeModel.ToList();
 
         //shows comments with corresonding posts, can do the same with profiles
         foreach (PostModel model in posts)
         {
             //model.Comments = _context.CommentModel.ToList();
             model.Comments = allComments.Where(c => c.PostId == model.PostId).ToList();
+            //likes
+            model.LikedBy = allLikes.Where(l => l.PostId == model.PostId).ToList();
         }
 
         return View(posts);
@@ -107,20 +110,24 @@ public class HomeController : Controller
 
         if (foundUser == null) return NotFound();
 
+        ViewBag.UserId = UserId;
         return View("Profile/EditProfile", foundUser);
     }
 
     [HttpPost]
     public IActionResult EditProfile(ApplicationUser ap)
-    {
+      {
         //will have to save Pfp, Username, Fn, Ln, and About seperately
 
-        string temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //string temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        ApplicationUser foundUser = dal.GetUser(temp);
+        ApplicationUser foundUser = dal.GetUser(ap.Id);
         if (foundUser == null) return NotFound();
 
-        if (!ap.ProfilePicture.Contains(".png") || !ap.ProfilePicture.Contains(".jpg")) ModelState.AddModelError("Invalid Image Format", "Invalid Format");
+        if (!(ap.ProfilePicture.Contains(".png") || ap.ProfilePicture.Contains(".jpg")))
+        {
+            ModelState.AddModelError("Invalid Image Format", "Invalid Format");
+        } 
         if (ap.Uname != foundUser.Uname && !dal.IsValidUserName(ap.Uname)) ModelState.AddModelError("Username Taken", "Username is being used by another user!");
 
         if (!ModelState.IsValid)
@@ -179,6 +186,7 @@ public class HomeController : Controller
         return View("Post/Details");
     }
 
+    [HttpGet]
     public IActionResult EditPost(Guid? id)
     {
         if (id == null)
@@ -187,6 +195,7 @@ public class HomeController : Controller
         PostModel foundPost = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(id));
 
         if (foundPost == null) return NotFound();
+        //notification
 
         return View("Post/EditPost", foundPost);
     }
@@ -230,7 +239,7 @@ public class HomeController : Controller
             }
 
             //dal.RemovePost(id);
-            _context.PostModel.Remove(post);
+            _ = _context.PostModel.Remove(post);
             await _context.SaveChangesAsync();
 
         }
@@ -240,6 +249,64 @@ public class HomeController : Controller
         }
         return RedirectToAction("Index", "Home");
     }
+
+    //likes
+    public async Task<IActionResult> LikePostAsync(Guid? postId) 
+    {
+        //get post
+        var post =  _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
+
+        if (post == null) {
+            return RedirectToAction("Index", "Home");
+        }        
+        else
+        {
+            //create Like model
+            var LikeModel = new LikeModel();
+
+            LikeModel.Id = Guid.NewGuid();
+            LikeModel.UserId = new Guid(UserId);
+            LikeModel.PostId = post.PostId;
+
+            //gets all post's likes
+            post.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postId)).ToList();
+
+            //add userID to list
+            post.LikedBy.Add(LikeModel);
+            post.LikeCount = post.LikedBy.Count();
+
+            //update Post
+            _context.LikeModel.Add(LikeModel);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
+    }
+
+    public async Task<IActionResult> UnlikePostAsync(Guid? postId)
+    {
+        //get post
+        var post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
+
+        if (post == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            //gets all post's likes
+            post.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postId)).ToList();
+            var like = post.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(UserId)));
+
+            //update Post
+            _context.LikeModel.Remove(like);
+            post.LikeCount = post.LikedBy.Count();
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
+    }
+
     #endregion
 
 
@@ -283,8 +350,6 @@ public class HomeController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
-
-        //return View("Comment/CreateComment");
     }
 
     [HttpGet]

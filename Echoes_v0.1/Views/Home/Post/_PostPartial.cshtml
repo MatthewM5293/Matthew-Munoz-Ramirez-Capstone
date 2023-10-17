@@ -68,9 +68,28 @@
                 </a>
 
             }
+
+            @*Like Count, Like button*@
+            <span>@Model.LikedBy.Count() Likes</span>
+            @*LikedbyIDs is null*@
+            @if (Model.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(ViewBag.UserId))) == null)
+            {
+                <a asp-controller="Home" asp-action="LikePost" asp-route-postId="@Model.PostId" class="btn">
+                @*Can like the post*@
+                <i class="bi bi-heart"></i>
+                </a>
+            }
+            else
+            {
+                @*Cannot like post, mark as liked*@
+                <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
+                    <i class="bi bi-heart-fill"></i>
+                </a>
+            }
+
         </div>
 
-            @*can be in an accordian*@
+        @*can be in an accordian*@
         <div class = "card-footer text-muted">
             @if (Model.Comments.Count > 0)
             {
@@ -78,21 +97,6 @@
                 @foreach (var comment in Model.Comments)
                 {
                     <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
-
-                   @*If the comment belongs to the signed in User they can edit or delete the comment*@
-                    @*@if (ViewBag.UserId == comment.UserId.ToString())
-                    {
-                        <div class="card-footer text-muted">
-                            <a asp-controller="Home" asp-action="EditComment" asp-route-id="@comment.CommentId.ToString()" class="btn btn-primary mx-2">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-
-                            <a asp-controller="Home" asp-action="DeleteComment" asp-route-comment="@Model" class="btn btn-danger mx-2">
-                                <i class="bi bi-trash"></i> Delete
-                            </a>
-                        </div>
-                    }*@
-
                 }
 
             }

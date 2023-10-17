@@ -37,13 +37,17 @@ public class PostModel
     [DataType(DataType.ImageUrl)]
     public String? ImageUrl { get; set; } //temporaily uses a url as the image source
 
+    //SOON
+    //[DataType(DataType.Upload)]
+    //public File Image { get; set; }
+
     [DataType(DataType.DateTime)]
     public DateTime PostDate { get; set; } //= DateTime.Now; //sets Posted time to now
     
     [DataType(DataType.DateTime)]
     public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
 
-    ///Comments may go here but Filtering using which Post the comments belong to could be simpler
+    //Comments may go here but Filtering using which Post the comments belong to could be simpler
     public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
 
     //[ForeignKey("CommentID")]
@@ -51,8 +55,16 @@ public class PostModel
     public IEnumerable<Guid>? CommentIds { get; set; }
 
 
-    ///Toggle Comments feature
+    //Toggle Comments feature
     public bool CommentsEnabled { get; set; } = true;
+
+    //Likes
+    public int LikeCount { get; set; } = 0;
+    
+    [NotMapped]
+    public IEnumerable<Guid>? LikedById { get; set; }
+
+    public List<LikeModel>? LikedBy { get; set; }
 
     //public bool IsArchived { get; set; } = false;
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Echoes_v0._1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231015220013_initializeDB")]
-    partial class initializeDB
+    [Migration("20231017023749_Likes")]
+    partial class Likes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,6 +44,9 @@ namespace Echoes_v0._1.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("PostModelPostId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -53,7 +56,31 @@ namespace Echoes_v0._1.Migrations
 
                     b.HasKey("CommentId");
 
+                    b.HasIndex("PostModelPostId");
+
                     b.ToTable("CommentModel");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.LikeModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostModelPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostModelPostId");
+
+                    b.ToTable("LikeModel");
                 });
 
             modelBuilder.Entity("Echoes_v0._1.Models.PostModel", b =>
@@ -75,6 +102,9 @@ namespace Echoes_v0._1.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
@@ -302,7 +332,6 @@ namespace Echoes_v0._1.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("Bio")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DateOfBirth")
@@ -322,6 +351,20 @@ namespace Echoes_v0._1.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.CommentModel", b =>
+                {
+                    b.HasOne("Echoes_v0._1.Models.PostModel", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("PostModelPostId");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.LikeModel", b =>
+                {
+                    b.HasOne("Echoes_v0._1.Models.PostModel", null)
+                        .WithMany("LikedBy")
+                        .HasForeignKey("PostModelPostId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -373,6 +416,13 @@ namespace Echoes_v0._1.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.PostModel", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("LikedBy");
                 });
 #pragma warning restore 612, 618
         }

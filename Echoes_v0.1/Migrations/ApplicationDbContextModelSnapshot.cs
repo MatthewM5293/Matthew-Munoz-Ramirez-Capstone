@@ -58,6 +58,28 @@ namespace Echoes_v0._1.Migrations
                     b.ToTable("CommentModel");
                 });
 
+            modelBuilder.Entity("Echoes_v0._1.Models.LikeModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostModelPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostModelPostId");
+
+                    b.ToTable("LikeModel");
+                });
+
             modelBuilder.Entity("Echoes_v0._1.Models.PostModel", b =>
                 {
                     b.Property<Guid>("PostId")
@@ -77,6 +99,9 @@ namespace Echoes_v0._1.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PostDate")
                         .HasColumnType("datetime2");
@@ -304,7 +329,6 @@ namespace Echoes_v0._1.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("Bio")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DateOfBirth")
@@ -330,6 +354,13 @@ namespace Echoes_v0._1.Migrations
                 {
                     b.HasOne("Echoes_v0._1.Models.PostModel", null)
                         .WithMany("Comments")
+                        .HasForeignKey("PostModelPostId");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.LikeModel", b =>
+                {
+                    b.HasOne("Echoes_v0._1.Models.PostModel", null)
+                        .WithMany("LikedBy")
                         .HasForeignKey("PostModelPostId");
                 });
 
@@ -387,6 +418,8 @@ namespace Echoes_v0._1.Migrations
             modelBuilder.Entity("Echoes_v0._1.Models.PostModel", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("LikedBy");
                 });
 #pragma warning restore 612, 618
         }

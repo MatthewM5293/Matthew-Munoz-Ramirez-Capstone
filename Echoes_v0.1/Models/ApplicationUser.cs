@@ -41,7 +41,7 @@ public class ApplicationUser : IdentityUser
 
 
     [Display(Name = "Bio")]
-    public string Bio { get; set; } = "";
+    public string? Bio { get; set; } = "";
 
     [DataType(DataType.Date)]
     [Display(Name = "Birthday")]

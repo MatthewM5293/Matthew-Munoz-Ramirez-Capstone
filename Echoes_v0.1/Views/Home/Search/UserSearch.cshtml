@@ -1,0 +1,36 @@
+﻿@model IEnumerable<ApplicationUser>
+
+@if (Model == null)
+{
+    <h1>No Users Exist, what are you doing here?</h1>
+}
+else if (Model.Count() == 0)
+{
+    <h1>The person you're looking for does not exists...</h1>
+}
+else
+{
+    <div class="mx-auto container">
+        <div>
+            <form method="post" asp-controller="Home" asp-action="Search" class="input-group mb-3">
+                <input name="key" class="form-control me-sm-2" type="search" placeholder="Search" />
+                <button class="btn btn-secondary my-sm-2 my-sm-0" type="submit"> <i class="bi bi-search"></i> search </button>
+            </form>
+        </div>
+
+        @*<div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Name <br/> Username</h4>
+                <h6 class="card-subtitle mb-2 text-muted">Post date</h6>
+                <p class="card-text">Caption: Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            </div>
+        </div>*@
+
+        <div>
+            @foreach (ApplicationUser au in Model)
+            {
+                <partial name="~/Views/Home/Profile/UserProfileView.cshtml" for="@au" />
+            }
+        </div>
+    </div>
+}

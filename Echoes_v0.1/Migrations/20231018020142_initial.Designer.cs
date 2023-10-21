@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Echoes_v0._1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231017023749_Likes")]
-    partial class Likes
+    [Migration("20231018020142_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1,7 +1,7 @@
 ﻿@model ApplicationUser
 
-<form method="post" asp-controller="Home" asp-action="EditProfile">
-    <div class="border p-3 mt-4">
+<form align="center" method="post" asp-controller="Home" asp-action="EditProfile">
+    <div class="mx-lg-auto border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Edit Profile</h2>
             <hr />
@@ -15,12 +15,11 @@
             } else {
                 <h5 class="card-title"> <img width="500" height="auto" src="@Model.ProfilePicture" /> </h5>
             }
-            <label asp-for="ProfilePicture"></label>
+            @*<label asp-for="ProfilePicture"></label>*@
             <input asp-for="ProfilePicture" class="form-control-plaintext" placeholder="Image URL" />
             <span asp-validation-for="ProfilePicture" class="text-danger"></span>
         </div>
 
-        ///
         <div class="form-floating mb-3">
             <input asp-for="Name" class="form-control" placeholder="Name" />
             <label asp-for="Name" class="form-label">Name</label>
@@ -30,7 +29,7 @@
             <label asp-for="Uname" class="form-label">Username</label>
         </div>
         <div class="form-floating mb-3">
-            <label asp-for="Bio"></label>
+            <label asp-for="Bio">Bio</label>
             <textarea asp-for="Bio" class="form-control" rows="10" spellcheck="true"></textarea>
             <span asp-validation-for="Bio" class="text-danger"></span>
         </div>
@@ -45,7 +44,6 @@
                     <input asp-for="ProfilePicture" class="form-control" type="file" />
             <label asp-for="ProfilePicture" class="form-label">Profile Picture</label>
         </div>*@
-        ///
 
        <button type="submit" class="btn btn-primary">
             <i class="bi bi-save"></i> Update
@@ -53,7 +51,7 @@
         </button>
 
         <a asp-controller="Home" asp-action="Profile" class="btn btn-secondary">
-            Back to Profile Page
+            Cancel
         </a>
     </div>
 </form>

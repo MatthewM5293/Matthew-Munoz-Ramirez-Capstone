@@ -6,14 +6,14 @@
 else
 {
     <div class="card mb-3 align-content-center align-self-center text-center">
-        <h3 class="card-header">
+        <h2 class="card-header">
             <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.Id" class="card-header">
                 @Model.Uname
             </a>
-        </h3>
-        @*<h2 class="card-title">@Model.Name </h2>*@
+        </h2>
+        @*<h2 class="card-title">@Model.Uname </h2>*@
         <div class="card-body">
-            <h5 class="card-title"> <img width="500" height="auto" src="@Model.ProfilePicture" /> </h5>
+            <h5 class="card-title"> <img width="500" src="@Model.ProfilePicture" /> </h5>
         </div>
         <div class="card-body">
             <h3 class="card-title">@Model.Name </h3>
@@ -23,6 +23,8 @@ else
             {
                 <p class="card-text">@Model.DateOfBirth.Value.ToShortDateString()</p>
             }
+
+            @*Joined Date*@
 
         </div>
     </div>

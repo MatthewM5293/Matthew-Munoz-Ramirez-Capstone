@@ -41,10 +41,12 @@ public class HomeController : Controller
             }
         }
 
-        //var posts = dal.GetPosts();
+        HomeModel homeModel = new HomeModel();
+
         var posts = _context.PostModel.ToList();
         var allComments = _context.CommentModel.ToList();
         var allLikes = _context.LikeModel.ToList();
+        homeModel.Posts = posts;
 
         //shows comments with corresonding posts, can do the same with profiles
         foreach (PostModel model in posts)
@@ -55,7 +57,7 @@ public class HomeController : Controller
             model.LikedBy = allLikes.Where(l => l.PostId == model.PostId).ToList();
         }
 
-        return View(posts);
+        return View(homeModel);
     }
 
     public IActionResult Privacy()
@@ -161,6 +163,7 @@ public class HomeController : Controller
         //var temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
         post.PostId = Guid.NewGuid();
         post.UserId = new Guid(UserId);
+        post.PostDate = DateTime.Now;
 
         //to set Username and PFP
         //post.Username = foundUser.UName;
@@ -168,8 +171,8 @@ public class HomeController : Controller
 
         if (!ModelState.IsValid || _context.PostModel == null || post == null)
         {
-            TempData["StatusMessage"] = "Post failed to update";
-            return View("Post/CreatePost");
+            TempData["StatusMessage"] = "Post failed to create Post";
+            return RedirectToAction("Index", "Home");
         }
 
         _context.PostModel.Add(post);
@@ -226,16 +229,18 @@ public class HomeController : Controller
         }
         if (ModelState.IsValid)
         {
-            //temp delete
             //deletes comments of post
             var comments = _context.CommentModel.Where(c => c.PostId.Equals(id)).ToList();
             foreach (var comment in comments)
             {
-                //DeleteComment(comment.Id);
-                
-                //back up
-                //comment.PostId = Guid.Empty;
                 _context.CommentModel.Remove(comment);
+            }
+            
+            //deletes likes of post
+            var likes = _context.LikeModel.Where(l => l.PostId.Equals(id)).ToList();
+            foreach (var like in likes)
+            {
+                _context.LikeModel.Remove(like);
             }
 
             //dal.RemovePost(id);
@@ -308,7 +313,6 @@ public class HomeController : Controller
     }
 
     #endregion
-
 
     #region Comment Functions
 
@@ -398,11 +402,26 @@ public class HomeController : Controller
         return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
     }
 
+    #endregion
 
+    #region Search
 
+    [HttpGet]
+    public IActionResult Search()
+    {
+        return View("Search/UserSearch", _context.ApplicationUsers.ToList());
+    }
 
-
-
+    [HttpPost]
+    public IActionResult Search(string key)
+    {
+        if (String.IsNullOrEmpty(key))
+        {
+            return View("Search/UserSearch", _context.ApplicationUsers.ToList());
+        }
+        //returns searched
+        return View("Search/UserSearch", _context.ApplicationUsers.ToList().Where(c => c.Name.ToLower().Contains(key.ToLower())));
+    }
     #endregion
 
 }

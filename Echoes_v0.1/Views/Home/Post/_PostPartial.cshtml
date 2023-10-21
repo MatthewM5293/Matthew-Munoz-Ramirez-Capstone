@@ -2,105 +2,123 @@
 
 @if (Model != null)
 {
-
-    @*<a asp-action="Profile" asp-controller="Home" asp-route-id="@Model.UserID" />*@
-    <div class="card mx-auto" @*style="flex-basis:100%;"*@ id="@Model.PostId.ToString()">
-        @*<h class="card-header">@Model.Username</h>*@      
-        
-        <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId" class="card-header a">
-            @*<h3>
-                @if (Model.ProfilePicture != null)
+    <div class="container-fluid mx-auto">
+        <div class="card" id="@Model.PostId.ToString()">  
+            
+            <div class="card-header">
+                <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId">
+                    @*<h3>
+                        @if (Model.ProfilePicture != null)
+                        {
+                            <img width="100" height="auto" src="@Model.ProfilePicture.ToString()" />
+                        }
+                          
+                        @Model.Username
+                    </h3>*@
+                </a>
+                @*If post belongs to the current logged in user, they can edit or delete the Post*@
+                @if (ViewBag.UserId == Model.UserId.ToString())
                 {
-                    <img width="100" height="auto" src="@Model.ProfilePicture.ToString()" />
+
+
+                    <a class="justify-content-end" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-trigger="focus" data-bs-content="Edit and Delete will go here" data-bs-original-title="Post Options"></a>
+
+                    
+                    <button class="btn dropdown">
+                        <a class="nav-link dropdown-toggle show" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu show" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 42.4px, 0px);" data-popper-placement="bottom-start">
+                            <h6 class="dropdown-header">Post options</h6>
+                            <a asp-controller="Home" asp-action="EditPost" asp-route-id="@Model.PostId" class="dropdown-item">
+                                <i class="bi bi-pencil-square"></i>
+                                <span>Edit Post</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a asp-controller="Home" asp-action="DeletePost" asp-route-id="@Model.PostId" class="dropdown-item">
+                                <i class="bi bi-trash"></i>
+                                <span>Delete Post</span>
+                            </a>
+                        </div>
+                    </button>
                 }
-                  
-                @Model.Username
-            </h3>*@
-        </a>
-
-        @*Post Caption*@
-        <div class="card-body">
-            <h6 class="card-subtitle text-muted">@Model.Caption</h6>
-        </div>
-
-        <div class="card-subtitle">
-            <p class="card-text"></p>
-        </div>
-        <hr/>
-
-        @*Post image*@
-        <div class="card-img">
-            <img fill="#dee2e6" dy=".3em" width="500" height="auto" src="@Model.ImageUrl" />
-        </div>
-        <hr>
-        
-        @if (Model.EditDate == null)
-        {
-            <div class="card-footer text-muted my_center text-center">
-                Posted on: @Model.PostDate
             </div>
-        }
-        else
-        {
-            <div class="card-footer text-muted my_center text-center">
-                Posted on: @Model.PostDate
-            </div>
-            <div class="card-footer text-muted my_center text-center">
-               Edited on: @Model.EditDate
-            </div>                        
-        }
-        
-        @*Comments button, can be modal*@
-        <div class="card-footer text-muted">
-            <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn btn-success mx-2 text-right">
-                <i class="bi bi-chat-left"></i> Add Comment
-            </a>
 
-            @*If post belongs to the current logged in user, they can edit or delete the Post*@
-            @if (ViewBag.UserId == Model.UserId.ToString())
+            @*Post Caption*@
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">@Model.Caption</h6>
+            </div>
+
+            <div class="card-subtitle">
+                <p class="card-text"></p>
+            </div>
+
+            @*Post image*@
+            @if (!String.IsNullOrEmpty(Model.ImageUrl))
             {
-                <a asp-controller="Home" asp-action="EditPost" asp-route-id="@Model.PostId" class="btn btn-primary mx-2 text-right">
-                    <i class="bi bi-pencil-square"></i> Edit
-                </a>
-
-                <a asp-controller="Home" asp-action="DeletePost" asp-route-id="@Model.PostId" class="btn btn-danger mx-2 align-content-end">
-                    <i class="bi bi-trash"></i> Delete
-                </a>
-
+                <hr/>
+                <div class="card-img">
+                    <img fill="#dee2e6" dy=".3em" width="500" height="auto" src="@Model.ImageUrl" />
+                </div>
+                <hr>
             }
-
-            @*Like Count, Like button*@
-            <span>@Model.LikedBy.Count() Likes</span>
-            @*LikedbyIDs is null*@
-            @if (Model.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(ViewBag.UserId))) == null)
+            
+            @if (Model.EditDate == null)
             {
-                <a asp-controller="Home" asp-action="LikePost" asp-route-postId="@Model.PostId" class="btn">
-                @*Can like the post*@
-                <i class="bi bi-heart"></i>
-                </a>
+                <div class="card-footer text-muted my_center text-center">
+                    Posted on: @Model.PostDate
+                </div>
             }
             else
             {
-                @*Cannot like post, mark as liked*@
-                <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
-                    <i class="bi bi-heart-fill"></i>
-                </a>
+                <div class="card-footer text-muted my_center text-center">
+                    Posted on: @Model.PostDate
+                </div>
+                <div class="card-footer text-muted my_center text-center">
+                   Edited on: @Model.EditDate
+                </div>                        
             }
+            
+            @*Comments button, can be modal*@
+            <div class="card-footer text-muted">
+                <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn btn-success mx-2 text-right">
+                    <i class="bi bi-chat-left"></i> Add Comment
+                </a>
 
-        </div>
-
-        @*can be in an accordian*@
-        <div class = "card-footer text-muted">
-            @if (Model.Comments.Count > 0)
-            {
-                @*Displays all comments*@
-                @foreach (var comment in Model.Comments)
+                @*Like Count, Like button*@
+                @if (Model.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(ViewBag.UserId))) == null)
                 {
-                    <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
+                    <a asp-controller="Home" asp-action="LikePost" asp-route-postId="@Model.PostId" class="btn">
+                    @*Can like the post*@
+                        <i class="bi bi-heart"></i>
+                        <span>@Model.LikedBy.Count() Likes</span>
+                    </a>
+                }
+                else
+                {
+                    @*Cannot like post, mark as liked*@
+                    <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>@Model.LikedBy.Count() Likes</span>
+                    </a>
                 }
 
-            }
-        </div>
-        
-    </div>    
+            </div>
+
+            @*can be in an accordian*@
+            <div class = "card-footer text-muted">
+                @if (Model.Comments.Count > 0)
+                {
+                    @*Displays all comments*@
+                    @foreach (var comment in Model.Comments)
+                    {
+                        <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
+                    }
+
+                }
+            </div>
+            
+        </div>    
+    </div>
+    <br />
 }

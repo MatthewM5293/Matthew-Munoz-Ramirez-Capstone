@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using Echoes_v0._1.Models;
+﻿using Echoes_v0._1.Data;
 using Echoes_v0._1.Interfaces;
+using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Security.Claims;
-using Echoes_v0._1.Data;
-using Microsoft.Extensions.Hosting;
 
 namespace Echoes_v0._1.Controllers;
 
@@ -80,7 +79,7 @@ public class HomeController : Controller
 
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (id == null) return NotFound();
-        
+
         ApplicationUser foundUser = dal.GetUser(id);
         if (foundUser == null) return NotFound();
 
@@ -118,7 +117,7 @@ public class HomeController : Controller
 
     [HttpPost]
     public IActionResult EditProfile(ApplicationUser ap)
-      {
+    {
         //will have to save Pfp, Username, Fn, Ln, and About seperately
 
         //string temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -129,7 +128,7 @@ public class HomeController : Controller
         if (!(ap.ProfilePicture.Contains(".png") || ap.ProfilePicture.Contains(".jpg")))
         {
             ModelState.AddModelError("Invalid Image Format", "Invalid Format");
-        } 
+        }
         if (ap.Uname != foundUser.Uname && !dal.IsValidUserName(ap.Uname)) ModelState.AddModelError("Username Taken", "Username is being used by another user!");
 
         if (!ModelState.IsValid)
@@ -151,7 +150,7 @@ public class HomeController : Controller
     #endregion
 
     #region Post Functions
-    
+
     public IActionResult CreatePost()
     {
         return View("Post/CreatePost");
@@ -218,7 +217,7 @@ public class HomeController : Controller
         }
         return View();
     }
-    
+
     public async Task<IActionResult> DeletePostAsync(Guid? id)
     {
         var post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(id));
@@ -235,7 +234,7 @@ public class HomeController : Controller
             {
                 _context.CommentModel.Remove(comment);
             }
-            
+
             //deletes likes of post
             var likes = _context.LikeModel.Where(l => l.PostId.Equals(id)).ToList();
             foreach (var like in likes)
@@ -256,14 +255,15 @@ public class HomeController : Controller
     }
 
     //likes
-    public async Task<IActionResult> LikePostAsync(Guid? postId) 
+    public async Task<IActionResult> LikePostAsync(Guid? postId)
     {
         //get post
-        var post =  _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
+        var post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
 
-        if (post == null) {
+        if (post == null)
+        {
             return RedirectToAction("Index", "Home");
-        }        
+        }
         else
         {
             //create Like model
@@ -317,7 +317,7 @@ public class HomeController : Controller
     #region Comment Functions
 
     [HttpGet]
-    public IActionResult AddComment(string? PostID) 
+    public IActionResult AddComment(string? PostID)
     {
         if (PostID != null)
         {
@@ -334,11 +334,11 @@ public class HomeController : Controller
 
     [HttpPost]
     public async Task<IActionResult> AddCommentAsync(CommentModel comment)
-        
+
     {
         //var temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
         comment.CommentId = Guid.NewGuid();
-        comment.PostId = new Guid(PostId); 
+        comment.PostId = new Guid(PostId);
         comment.UserId = new Guid(UserId);
 
         //to set Username and PFP
@@ -357,7 +357,7 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public IActionResult EditComment(Guid? id) 
+    public IActionResult EditComment(Guid? id)
     {
         if (id == null) return NotFound();
 
@@ -370,7 +370,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditCommentAsync(CommentModel comment) 
+    public async Task<IActionResult> EditCommentAsync(CommentModel comment)
     {
         if (comment.Message.Length < 1 || _context == null || comment == null)
         {
@@ -382,9 +382,9 @@ public class HomeController : Controller
 
         return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
     }
-    
+
     //[HttpPost]
-    public async Task<IActionResult> DeleteCommentAsync(CommentModel comment) 
+    public async Task<IActionResult> DeleteCommentAsync(CommentModel comment)
     {
         //CommentModel foundComment;
         if (comment == null)
@@ -392,7 +392,7 @@ public class HomeController : Controller
             //validator
             ModelState.AddModelError("CommentId", "Cannot find comment to delete");
         }
-        else 
+        else
         {
             //comment.PostId = Guid.Empty;
             _context.CommentModel.Remove(comment); //dal method?

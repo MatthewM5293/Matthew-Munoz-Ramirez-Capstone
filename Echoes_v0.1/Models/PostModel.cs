@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.Mime;
 
 namespace Echoes_v0._1.Models;
 
@@ -20,8 +19,8 @@ public class PostModel
      * Date Edited
      * Comments
      */
-    
-    [Key] 
+
+    [Key]
     public Guid PostId { get; set; }
 
     [ForeignKey("UserID")]
@@ -43,7 +42,7 @@ public class PostModel
 
     [DataType(DataType.DateTime)]
     public DateTime PostDate { get; set; } //= DateTime.Now; //sets Posted time to now
-    
+
     [DataType(DataType.DateTime)]
     public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
 
@@ -60,7 +59,7 @@ public class PostModel
 
     //Likes
     public int LikeCount { get; set; } = 0;
-    
+
     [NotMapped]
     public IEnumerable<Guid>? LikedById { get; set; }
 

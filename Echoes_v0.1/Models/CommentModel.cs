@@ -16,9 +16,9 @@ public class CommentModel
      * EditDate
      */
 
-    [Key] 
+    [Key]
     public Guid CommentId { get; set; }
-    
+
     [ForeignKey("PostID")]
     public Guid PostId { get; set; }
 

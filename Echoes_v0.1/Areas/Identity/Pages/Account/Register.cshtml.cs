@@ -2,23 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Echoes_v0._1.Areas.Identity.Pages.Account
 {
@@ -38,7 +31,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender//,
-            //RoleManager<IdentityRole> roleManager
+                                    //RoleManager<IdentityRole> roleManager
             )
         {
             _userManager = userManager;
@@ -83,7 +76,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
-            
+
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Full Name")]
@@ -95,7 +88,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             [DataType(DataType.Text), RegularExpression(@"^[A-Za-z0-9_.]*$")]
             [Display(Name = "Username")]
             public string Username { get; set; }
-                        
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -143,10 +136,10 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
                 //custom fields
                 user.Uname = Input.Username;
                 user.Name = Input.Name;
-                
+
                 //Creates User
                 var result = await _userManager.CreateAsync(user, Input.Password);
-                
+
 
                 if (result.Succeeded)
                 {

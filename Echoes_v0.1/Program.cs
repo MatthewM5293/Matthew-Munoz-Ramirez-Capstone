@@ -1,8 +1,7 @@
+using Echoes_v0._1.Data;
+using Echoes_v0._1.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Echoes_v0._1.Data;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Echoes_v0._1.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-    //options.UseSqlite(connectionString)); //sqlite
+//options.UseSqlite(connectionString)); //sqlite
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

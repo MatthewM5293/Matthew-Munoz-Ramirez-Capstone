@@ -18,7 +18,7 @@ namespace Echoes_v0._1.Data
             EchoesDB.SaveChanges();
             //throw new NotImplementedException();
         }
-        
+
         public void DeleteUser(ApplicationUser au)
         {
             //log them out, then remove (still in progress)
@@ -39,7 +39,7 @@ namespace Echoes_v0._1.Data
             throw new NotImplementedException();
             //var results = EchoesDB.ApplicationUsers.Where(user => user.Uname.Equals(userName)).FirstOrDefault();
         }
-        
+
         public bool IsValidUserName(string userName)
         {
             //check if Username is taken

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Echoes_v0._1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231018020142_initial")]
-    partial class initial
+    [Migration("20231024162243_initializeDB")]
+    partial class initializeDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,10 +89,12 @@ namespace Echoes_v0._1.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Caption")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
@@ -112,9 +114,41 @@ namespace Echoes_v0._1.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("PostId");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.ToTable("PostModel");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.UserFollowModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicationUserId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CurrentUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FollowingUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ApplicationUserId1");
+
+                    b.ToTable("UserFollowModels");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -337,6 +371,15 @@ namespace Echoes_v0._1.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FollowersCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FollowingCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("JoinDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -365,6 +408,24 @@ namespace Echoes_v0._1.Migrations
                     b.HasOne("Echoes_v0._1.Models.PostModel", null)
                         .WithMany("LikedBy")
                         .HasForeignKey("PostModelPostId");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.PostModel", b =>
+                {
+                    b.HasOne("Echoes_v0._1.Models.ApplicationUser", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.UserFollowModel", b =>
+                {
+                    b.HasOne("Echoes_v0._1.Models.ApplicationUser", null)
+                        .WithMany("Followers")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("Echoes_v0._1.Models.ApplicationUser", null)
+                        .WithMany("Following")
+                        .HasForeignKey("ApplicationUserId1");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -423,6 +484,15 @@ namespace Echoes_v0._1.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("LikedBy");
+                });
+
+            modelBuilder.Entity("Echoes_v0._1.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Followers");
+
+                    b.Navigation("Following");
+
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

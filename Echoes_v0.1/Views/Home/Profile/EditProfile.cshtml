@@ -1,22 +1,21 @@
 ﻿@model ApplicationUser
 
-<form align="center" method="post" asp-controller="Home" asp-action="EditProfile">
+<form align="center" method="post" asp-controller="Home" asp-action="EditProfile" enctype="multipart/form-data">
     <div class="mx-lg-auto border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Edit Profile</h2>
             <hr />
         </div>
         <input asp-for="Id" type="hidden" value="@ViewBag.UserId" />
+        <input asp-for="@Model.JoinDate" type="hidden" value="@Model.JoinDate"/>
 
-        <div class="form-floating mb-3">
-            @if (!Model.ProfilePicture.Contains(".png") || !Model.ProfilePicture.Contains(".jpg"))
-            {
-                <h5 class="card-title"> <img width="500" height="auto" src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" /> </h5>
-            } else {
-                <h5 class="card-title"> <img width="500" height="auto" src="@Model.ProfilePicture" /> </h5>
-            }
-            @*<label asp-for="ProfilePicture"></label>*@
-            <input asp-for="ProfilePicture" class="form-control-plaintext" placeholder="Image URL" />
+        <div class="form-group mb-3">
+            <label asp-for="ProfilePicture" class="form-label mt-4">Profile Picture</label>
+            <h5 class="card-title">
+                @*<iframe width="700" src="~/ProfilePictures/@Model.ProfilePicture"></iframe>*@
+                <img width="500" height="auto" src="~/ProfilePictures/@Model.ProfilePicture" />
+            </h5>
+            <input class="form-control" accept="image/jpeg,image/png" type="file" asp-for="@Model.Image">
             <span asp-validation-for="ProfilePicture" class="text-danger"></span>
         </div>
 
@@ -37,14 +36,6 @@
             <input asp-for="DateOfBirth" class="form-control" />
             <label asp-for="DateOfBirth" class="form-label">Birthday</label>
         </div>
-
-        @*<div class="form-floating mb-3">
-            <input asp-for="ProfilePicture" class="form-control" />
-            <label asp-for="ProfilePicture" class="form-label">Profile Picture</label>
-                    <input asp-for="ProfilePicture" class="form-control" type="file" />
-            <label asp-for="ProfilePicture" class="form-label">Profile Picture</label>
-        </div>*@
-
        <button type="submit" class="btn btn-primary">
             <i class="bi bi-save"></i> Update
             @*icon gotten from https://icons.getbootstrap.com*@

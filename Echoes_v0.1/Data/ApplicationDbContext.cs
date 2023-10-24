@@ -17,4 +17,5 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<CommentModel> CommentModel { get; set; } = default!;
 
     public DbSet<LikeModel> LikeModel { get; set; } = default!;
+    public DbSet<UserFollowModel> UserFollowModels { get; set; } = default!;
 }

@@ -25,10 +25,7 @@
         </div>
         
         <div class="form-floating mb-3 card-body">
-            @*            asp binds it to the title in the model*@
-            @*<label asp-for="Text">Caption</label>
-            <hr/>*@
-            <textarea asp-for="@Model.Caption" class="card-group mx-lg-auto" placeholder="Type here!" value="@Model.Caption" rows="10" cols="20" ></textarea>
+            <textarea asp-for="@Model.Caption" class="card-group mx-lg-auto" placeholder="Type here!" value="@Model.Caption" rows="4" cols="50" maxlength="2000"></textarea>
             <br />
             <span asp-validation-for="Caption" class="text-danger"></span>
         </div>
@@ -36,23 +33,15 @@
         @if (!String.IsNullOrEmpty(Model.ImageUrl))
         {           
             <hr/>
-            <div class="form-floating mb-3">
-                @*            asp binds it to the title in the model*@
-                @*<label asp-for="Image"></label>*@
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            <div class="card-img form-floating mb-3">
                 <img src="@Model.ImageUrl" />
             </div>
         }
-        @*Post date*@
         <hr/>
 
         <button type="submit" class="btn btn-primary">
             Post Edit
         </button>
-
-        @*<a asp-controller="Home" asp-action="Explore" class="btn btn-secondary">
-            Back to Home Page
-        </a>*@
         <a href='javascript:history.go(-1)'>Back</a>
     </div>
 </form>

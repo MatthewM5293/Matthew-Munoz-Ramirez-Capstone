@@ -3,27 +3,24 @@
 @if (Model != null)
 {
     <div class="container-fluid mx-auto">
-        <div class="card" id="@Model.PostId.ToString()">  
-            
+        <div class="card" id="@Model.PostId.ToString()">
+
             <div class="card-header">
-                <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.UserId">
+                <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
                     @*<h3>
-                        @if (Model.ProfilePicture != null)
-                        {
-                            <img width="100" height="auto" src="@Model.ProfilePicture.ToString()" />
-                        }
-                          
-                        @Model.Username
-                    </h3>*@
+                @if (Model.ProfilePicture != null)
+                {
+                <img width="100" height="auto" src="@Model.ProfilePicture.ToString()" />
+                }
+
+                @Model.Username
+                </h3>*@
                 </a>
                 @*If post belongs to the current logged in user, they can edit or delete the Post*@
                 @if (ViewBag.UserId == Model.UserId.ToString())
                 {
-
-
                     <a class="justify-content-end" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-trigger="focus" data-bs-content="Edit and Delete will go here" data-bs-original-title="Post Options"></a>
 
-                    
                     <di class="btn dropdown">
                         <a class="nav-link dropdown-toggle show" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
                             <i class="bi bi-three-dots-vertical"></i>
@@ -56,18 +53,33 @@
             @*Post image*@
             @if (!String.IsNullOrEmpty(Model.ImageUrl))
             {
-                <hr/>
+                <hr />
                 <div class="card-img">
-                    <img fill="#dee2e6" dy=".3em" width="500" height="auto" src="@Model.ImageUrl" />
+                    <img fill="#dee2e6" dy=".3em" width="500" height="auto" src="~/Images/@Model.ImageUrl" />
                 </div>
                 <hr>
             }
-            
+
             @if (Model.EditDate == null)
             {
                 <div class="card-footer text-muted my_center text-center">
                     Posted on: @Model.PostDate
                 </div>
+                <div>
+                    <p>Date and Time: @Model.PostDate</p>
+                    <p>Posted: <span id="relative-time"></span></p>
+                </div>
+
+                <script>
+                    $(document).ready(function () {
+                        // Get the DateTime value from Model and format it using Moment.js
+                        var dateTimeValue = moment('@Model.PostDate');
+
+                        // Display the relative time
+                        var relativeTime = dateTimeValue.fromNow();
+                        $("#relative-time").text(relativeTime);
+                    });
+                </script>
             }
             else
             {
@@ -75,10 +87,10 @@
                     Posted on: @Model.PostDate
                 </div>
                 <div class="card-footer text-muted my_center text-center">
-                   Edited on: @Model.EditDate
-                </div>                        
+                    Edited on: @Model.EditDate
+                </div>
             }
-            
+
             @*Comments button, can be modal*@
             <div class="card-footer text-muted">
                 <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn btn-success mx-2 text-right">
@@ -86,39 +98,45 @@
                 </a>
 
                 @*Like Count, Like button*@
-                @if (Model.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(ViewBag.UserId))) == null)
+                @if (Model.LikedBy != null)
                 {
-                    <a asp-controller="Home" asp-action="LikePost" asp-route-postId="@Model.PostId" class="btn">
-                    @*Can like the post*@
-                        <i class="bi bi-heart"></i>
-                        <span>@Model.LikedBy.Count() Likes</span>
-                    </a>
-                }
-                else
-                {
-                    @*Cannot like post, mark as liked*@
-                    <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
-                        <i class="bi bi-heart-fill"></i>
-                        <span>@Model.LikedBy.Count() Likes</span>
-                    </a>
+                    @if (Model.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(ViewBag.UserId))) == null)
+                    {
+                        <a asp-controller="Home" asp-action="LikePost" asp-route-postId="@Model.PostId" class="btn">
+                            @*Can like the post*@
+                            <i class="bi bi-heart"></i>
+                            <span>@Model.LikedBy.Count() Likes</span>
+                        </a>
+                    }
+                    else
+                    {
+                        @*Cannot like post, mark as liked*@
+                        <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
+                            <i class="bi bi-heart-fill"></i>
+                            <span>@Model.LikedBy.Count() Likes</span>
+                        </a>
+                    }
                 }
 
             </div>
 
             @*can be in an accordian*@
-            <div class = "card-footer text-muted">
-                @if (Model.Comments.Count > 0)
-                {
-                    @*Displays all comments*@
-                    @foreach (var comment in Model.Comments)
+            @if (Model.Comments != null)
+            {
+                <div class="card-footer text-muted">
+                    @if (Model.Comments.Count > 0)
                     {
-                        <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
-                    }
+                        @*Displays all comments*@
+                        @foreach (var comment in Model.Comments)
+                        {
+                            <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@comment" />
+                        }
 
-                }
-            </div>
-            
-        </div>    
+                    }
+                </div>
+            }
+
+        </div>
     </div>
     <br />
 }

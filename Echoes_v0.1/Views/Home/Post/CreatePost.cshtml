@@ -1,51 +1,28 @@
 ﻿@model PostModel
 
-@*<h1>Create</h1>
+<form asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<h4>Create a Post</h4>
-<hr />*@
-@*<div class="row">
-    <div class="col-md-4">*@
-        <form asp-controller="Home" asp-action="CreatePost" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-@*                <label asp-for="@Model.UserId" class="control-label"></label>
-                <input asp-for="@Model.UserId" class="form-control" />
-                <span asp-validation-for="@Model.UserId" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model.Caption" class="control-label"></label>
-                <input asp-for="@Model.Caption" class="form-control" />
-                <span asp-validation-for="@Model.Caption" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="@Model.ImageUrl" class="control-label"></label>
-                <input asp-for="@Model.ImageUrl" class="form-control" />
-                <span asp-validation-for="@Model.ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                @*<label asp-for="@Model.PostDate" class="control-label"></label>*@
-                @*<input asp-for="@Model.PostDate" class="form-control" value="@DateTime.Now" type="hidden" />*@
-                @*<span asp-validation-for="@Model.PostDate" class="text-danger"></span>*@
-            </div>
-            <div class="form-group">
-@*                <label asp-for="@Model.EditDate" class="control-label"></label>*@
-                @*<input asp-for="@Model.EditDate" class="form-control" value="@null" type="hidden" />*@
-                @*<span asp-validation-for="@Model.EditDate" class="text-danger"></span>*@
-            </div>
-            <hr />
-            <div class="modal-footer form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-@*    </div>
-</div>*@
+    <div class="form-group">
+        @*<input asp-for="@Model.Caption" class="form-control" />*@
 
-@*<div>
-    @*<a asp-page="Index">Close</a>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to Home Page</a>
-    <a onclick="history.go(-1)">Back</a>
-</div>*@
+        <label asp-for="@Model.Caption" class="control-label"></label>
+        <br />
+        <textarea asp-for="@Model.Caption" class="card-group mx-lg-auto" placeholder="Type here!" rows="4" cols="50" maxlength="2000"></textarea>
+        <span asp-validation-for="Caption" class="text-danger"></span>
+
+        <span asp-validation-for="@Model.Caption" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="formFile" class="form-label mt-4">Default file input example</label>
+        <input accept="image/jpeg,image/png" type="file" id="formFile" asp-for="@Model.Image">
+    </div>
+
+    <div class="modal-footer">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
 
 @section Scripts {
     @{

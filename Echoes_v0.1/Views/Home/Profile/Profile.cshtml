@@ -7,21 +7,36 @@
 }
 else
 {
-    <div>        
-         <div class="mb-3">
-             <partial name="UserProfileView.cshtml" for="@Model" />
-         </div>
-        
-    @if (ViewBag.UserId == Model.Id)
-    {
+    <div>
+        <div class="mb-3">
+            <partial name="UserProfileView.cshtml" for="@Model" />
+        </div>
+
+        @if (ViewBag.UserId.Equals(Model.Id))
+        {
             <div class="card-footer">
-             @*<a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.UserID" class="btn btn-primary mx-2">*@
-             <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary mx-auto">
-                 <i class="bi bi-pencil-square"></i> Edit
-             </a>
-         </div>
-    }
+                <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary mx-auto">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+            </div>
+        }
+        else if (Model.Followers.FirstOrDefault(l => l.CurrentUserId.Equals(new Guid(ViewBag.UserId))) == null)
+        {
+            <div class="card-footer">
+                <a asp-controller="Home" asp-action="FollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
+                    <b>Follow</b>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="card-footer">
+                <a asp-controller="Home" asp-action="UnFollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
+                    <b>Unfollow</b>
+                </a>
+            </div>
+        }
     </div>
-    
+
 
 }

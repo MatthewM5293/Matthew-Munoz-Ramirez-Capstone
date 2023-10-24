@@ -9,15 +9,15 @@ namespace Echoes_v0._1.Models;
 public class PostModel
 {
     /*
-     * PostID
-     * UserID (User it belongs to)
-     *  User's Profile picture URL
+     * PostID DONE
+     * UserID (User it belongs to) DONE
+     *  User's Profile picture URL 
      * 
-     * Media (Image or Video)
-     * Caption or Description
-     * Date of Post
-     * Date Edited
-     * Comments
+     * Media (Image or Video) 
+     * Caption or Description DONE
+     * Date of Post Done
+     * Date Edited Done
+     * Comments Done
      */
 
     [Key]
@@ -26,33 +26,25 @@ public class PostModel
     [ForeignKey("UserID")]
     public Guid UserId { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    public string Caption { get; set; }
+    public string? UserName { get; set; }
 
-    ///Images or Videos go here once I figure out how to allow videos to display
+
+    [MaxLength(2000)]
+    public string? Caption { get; set; }
 
     ///temp solution for images
     [DataType(DataType.ImageUrl)]
-    public String? ImageUrl { get; set; } //temporaily uses a url as the image source
+    public string? ImageUrl { get; set; } //temporaily uses a url as the image source
 
-    //SOON
-    //[DataType(DataType.Upload)]
-    //public File Image { get; set; }
+    [NotMapped]
+    [DataType(DataType.Upload)]
+    public IFormFile? Image { get; set; }
 
     [DataType(DataType.DateTime)]
-    public DateTime PostDate { get; set; } //= DateTime.Now; //sets Posted time to now
+    public DateTime PostDate { get; set; } = DateTime.Now; //sets Posted time to now
 
     [DataType(DataType.DateTime)]
     public DateTime? EditDate { get; set; } //can be null as a post will not always be edited.
-
-    //Comments may go here but Filtering using which Post the comments belong to could be simpler
-    public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
-
-    //[ForeignKey("CommentID")]
-    [NotMapped]
-    public IEnumerable<Guid>? CommentIds { get; set; }
-
 
     //Toggle Comments feature
     public bool CommentsEnabled { get; set; } = true;
@@ -60,13 +52,8 @@ public class PostModel
     //Likes
     public int LikeCount { get; set; } = 0;
 
-    [NotMapped]
-    public IEnumerable<Guid>? LikedById { get; set; }
-
+    public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
     public List<LikeModel>? LikedBy { get; set; }
-
-    //public bool IsArchived { get; set; } = false;
-
 
     //Empty Constructor 
     public PostModel()

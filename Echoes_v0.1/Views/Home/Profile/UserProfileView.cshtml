@@ -7,17 +7,17 @@ else
 {
     <div class="card mb-3 align-content-center align-self-center text-center">
         <h2 class="card-header">
-            <a asp-controller="Home" asp-action="Profile" asp-route-id="@Model.Id" class="card-header">
+            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" class="card-header">
                 @Model.Uname
             </a>
         </h2>
         @*<h2 class="card-title">@Model.Uname </h2>*@
         <div class="card-body">
-            <h5 class="card-title"> <img width="500" src="@Model.ProfilePicture" /> </h5>
+            <h5 class="card-title"> <img class="img_round" width="500" src="~/ProfilePictures/@Model.ProfilePicture" /> </h5>
         </div>
         <div class="card-body">
             <h3 class="card-title">@Model.Name </h3>
-@*            <h3>About me:</h3>*@
+            @*            <h3>About me:</h3>*@
             <p class="card-text">@Model.Bio</p>
             @if (Model.DateOfBirth.HasValue)
             {
@@ -25,7 +25,56 @@ else
             }
 
             @*Joined Date*@
-
+            @if (Model.DateOfBirth.HasValue)
+            {
+                <p class="card-text">@Model.JoinDate.Value.ToShortDateString()</p>
+            }
         </div>
     </div>
+
+    ///
+    <header>
+        <div class="header-grid">
+            <div class="profile-pic">
+                <img src="images/profile-logo.jpg" />
+            </div>
+            <div class="profile-info">
+                <div class="title row">
+                    <h2>apple</h2>
+                    <span class="verified-icon"></span>
+                    <button class="primary">Follow</button>
+                </div>
+                <div class="desktop-only">
+                    <div class="details row">
+                        <ul>
+                            <li><span>722</span> posts</li>
+                            <li><span>25.1m</span> followers</li>
+                            <li><span>6</span> following</li>
+                        </ul>
+                    </div>
+                    <div class="description row last">
+                        <h1>apple</h1>
+                        <span>
+                            Everyone has a story to tell.
+                            <br />
+                            Tag <a>#ShotoniPhone</a> to take part.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="profile-info mobile-only">
+            <div class="description row">
+                <h1>apple</h1>
+                <span>
+                    Everyone has a story to tell.
+                    <br />
+                    Tag <a>#ShotoniPhone</a> to take part.
+                </span>
+            </div>
+        </div>
+    </header>
+    ///
+
+
 }

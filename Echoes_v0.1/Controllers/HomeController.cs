@@ -2,7 +2,9 @@
 using Echoes_v0._1.Interfaces;
 using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -12,18 +14,20 @@ namespace Echoes_v0._1.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IDataAccessLayer dal;
+    private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
     private static string? UserId;
     private static string? PostId;
     private static string? UserName;
 
-    private readonly IDataAccessLayer dal;
-    private readonly ApplicationDbContext _context;
-
-    public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context)
+    public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
     {
         _logger = logger;
         dal = indal;
         _context = context;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public IActionResult Index()
@@ -47,7 +51,9 @@ public class HomeController : Controller
         var allLikes = _context.LikeModel.ToList();
         homeModel.Posts = posts;
 
+        //populates Posts, comments, and Likes
         //shows comments with corresonding posts, can do the same with profiles
+
         foreach (PostModel model in posts)
         {
             //model.Comments = _context.CommentModel.ToList();
@@ -87,7 +93,7 @@ public class HomeController : Controller
     }
 
     //[HttpPost]
-    public IActionResult Profile(string? id)
+    public IActionResult ProfilePost(string? id)
     {
         UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         ViewBag.UserId = UserId;
@@ -97,7 +103,12 @@ public class HomeController : Controller
         ApplicationUser foundUser = dal.GetUser(id);
         if (foundUser == null) return NotFound();
 
-        return View("Profile/ProfilePost", foundUser);
+        //populate Followers
+        var allFollowers = _context.UserFollowModels.ToList();
+        foundUser.Followers = allFollowers.Where(fm => fm.FollowingUserId.ToString().Equals(id)).ToList();
+        foundUser.Following = allFollowers.Where(fm => fm.CurrentUserId.ToString().Equals(id)).ToList();
+
+        return View("Profile/Profile", foundUser);
     }
 
     [HttpGet]
@@ -118,10 +129,6 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult EditProfile(ApplicationUser ap)
     {
-        //will have to save Pfp, Username, Fn, Ln, and About seperately
-
-        //string temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
         ApplicationUser foundUser = dal.GetUser(ap.Id);
         if (foundUser == null) return NotFound();
 
@@ -137,7 +144,23 @@ public class HomeController : Controller
         }
         else
         {
-            foundUser.ProfilePicture = ap.ProfilePicture;
+            string stringFileName = UploadFile(ap);
+            if (stringFileName != null)
+            {
+                //delete old pfp
+                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures");
+                filePath += "\\" + foundUser.ProfilePicture;
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                //update
+                ap.ProfilePicture = stringFileName;
+                foundUser.ProfilePicture = ap.ProfilePicture;
+
+            }
+            
             foundUser.UserName = ap.UserName;
             foundUser.Name = ap.Name;
             foundUser.DateOfBirth = ap.DateOfBirth;
@@ -147,6 +170,84 @@ public class HomeController : Controller
 
         return RedirectToAction("Profile", "Home");
     }
+
+    //follow
+    public async Task<IActionResult> FollowUserAsync(Guid? userId)
+    {
+        //get users
+        var userFollowing = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(userId.ToString()));
+        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(UserId));
+
+
+        if (userFollowing == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            //create follow model
+            UserFollowModel followModel = new UserFollowModel();
+
+            followModel.Id = Guid.NewGuid();
+            followModel.CurrentUserId = new Guid(UserId);
+            followModel.FollowingUserId = new Guid(userFollowing.Id);
+
+            //gets all User's following
+            userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
+
+            //add userID to list
+            userFollowing.Followers.Add(followModel);
+            userFollowing.FollowersCount = userFollowing.Followers.Count();
+
+            //update current User's following count
+            currentUser.FollowersCount++;
+
+            //update db
+            _context.UserFollowModels.Add(followModel);
+            await _context.SaveChangesAsync();
+        }
+
+        //return user to page
+        return ProfilePost(userFollowing.Id.ToString());
+
+    }
+
+    public async Task<IActionResult> UnFollowUserAsync(Guid? userId)
+    {
+        //get user being unfollowed
+        var userFollowing = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(userId.ToString()));
+        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(UserId));
+        //var post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
+
+        if (userFollowing == null)
+        {
+            //redirect to profile viewing
+
+            TempData["StatusMessage"] = "Profile cannot be unfollowed, Account may be deleted";
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            //gets all user's following
+            userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
+            var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(UserId)));
+
+            //post.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postId)).ToList();
+            //var like = post.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(UserId)));
+
+            //update current User's following count
+            currentUser.FollowersCount--;
+
+            //update db
+            _context.UserFollowModels.Remove(followModel);
+            userFollowing.FollowersCount = userFollowing.Followers.Count();
+            await _context.SaveChangesAsync();
+        }
+
+        return ProfilePost(userFollowing.Id.ToString());
+    }
+
+
     #endregion
 
     #region Post Functions
@@ -165,13 +266,20 @@ public class HomeController : Controller
         post.PostDate = DateTime.Now;
 
         //to set Username and PFP
-        //post.Username = foundUser.UName;
+        post.UserName = UserName;
         //post.ProfilePicture = foundUser.ProfilePictureUrl;
 
         if (!ModelState.IsValid || _context.PostModel == null || post == null)
         {
             TempData["StatusMessage"] = "Post failed to create Post";
             return RedirectToAction("Index", "Home");
+        }
+
+        //Images
+        string stringFileName = UploadFile(post);
+        if (stringFileName != null)
+        {
+            post.ImageUrl = stringFileName;
         }
 
         _context.PostModel.Add(post);
@@ -208,6 +316,14 @@ public class HomeController : Controller
         if (ModelState.IsValid)
         {
             //check if post is different than original
+            PostModel foundPost = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postModel.PostId));
+            if (foundPost.Caption == postModel.Caption)
+            {
+                postModel.EditDate = null;
+
+                TempData["StatusMessage"] = "Nothing to be updated";
+                return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
+            } 
 
             _context.PostModel.Update(postModel);
             await _context.SaveChangesAsync();
@@ -215,7 +331,7 @@ public class HomeController : Controller
             TempData["StatusMessage"] = "Post successfully updated";
             return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
         }
-        return View();
+        return View("Post/EditPost", postModel);
     }
 
     public async Task<IActionResult> DeletePostAsync(Guid? id)
@@ -245,6 +361,14 @@ public class HomeController : Controller
             //dal.RemovePost(id);
             _ = _context.PostModel.Remove(post);
             await _context.SaveChangesAsync();
+
+            //delete Images
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images");
+            filePath += "\\" + post.ImageUrl;
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);    
+            }
 
         }
         else
@@ -409,19 +533,100 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Search()
     {
-        return View("Search/UserSearch", _context.ApplicationUsers.ToList());
+
+        TempData["key"] = "";
+
+        SearchViewModel searchModel = new SearchViewModel();
+        searchModel.Users = _context.ApplicationUsers.ToList();
+        searchModel.Posts = _context.PostModel.ToList();
+        return View("Search/UserSearch", searchModel);
     }
 
     [HttpPost]
     public IActionResult Search(string key)
     {
+        SearchViewModel searchModel = new SearchViewModel();
+        searchModel.Users = _context.ApplicationUsers.ToList();
+        searchModel.Posts = _context.PostModel.ToList();
+
         if (String.IsNullOrEmpty(key))
         {
-            return View("Search/UserSearch", _context.ApplicationUsers.ToList());
+            return View("Search/UserSearch", searchModel);
         }
+
+        TempData["key"] = key;
+
         //returns searched
-        return View("Search/UserSearch", _context.ApplicationUsers.ToList().Where(c => c.Name.ToLower().Contains(key.ToLower())));
+        //filters
+        searchModel.Users = searchModel.Users.Where(c => c.Uname.ToLower().Contains(key.ToLower())).ToList();
+        searchModel.Posts = searchModel.Posts.Where(p => p.Caption.ToLower().Contains(key.ToLower())).ToList();
+
+        return View("Search/UserSearch", searchModel);
     }
+    #endregion
+
+    #region Helped Methods
+
+    private string UploadFile(PostModel postModel) 
+    {
+        string filename = null;
+        if (postModel.Image != null) 
+        {
+            // Create the directory if it does not exist.
+            if (!Directory.Exists(Path.Combine(_webHostEnvironment.WebRootPath, "Images")))
+            {
+                Directory.CreateDirectory(Path.Combine(_webHostEnvironment.WebRootPath, "Images"));
+            }
+
+            string uploadDirectory = Path.Combine(_webHostEnvironment.WebRootPath, "Images");
+            filename = Guid.NewGuid().ToString() + "-" + postModel.Image.FileName;
+
+            string filePath = Path.Combine(uploadDirectory, filename);
+            
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                postModel.Image.CopyTo(fileStream);
+            }
+        }
+
+        return filename;
+    }
+    
+    private string UploadFile(ApplicationUser applicationUser) 
+    {
+        string filename = null;
+        if (applicationUser.Image != null) 
+        {
+            // Create the directory if it does not exist.
+            if (!Directory.Exists(Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures")))
+            {
+                Directory.CreateDirectory(Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures"));
+            }
+
+            if (Directory.Exists("/wwwroot/ProfilePictures"))
+            {
+                string uploadDirectory = Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures");
+                filename = Guid.NewGuid().ToString() + "-" + applicationUser.Image.FileName;
+                string filePath = Path.Combine(uploadDirectory, filename);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    applicationUser.Image.CopyTo(fileStream);
+                }
+            }
+
+        }
+
+        return filename;
+    }
+
+    //populate likes
+    private void PopulatePosts() 
+    {
+        var posts = _context.PostModel.ToList();
+        var allComments = _context.CommentModel.ToList();
+        var allLikes = _context.LikeModel.ToList();
+    }
+
     #endregion
 
 }

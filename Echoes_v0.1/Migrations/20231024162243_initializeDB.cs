@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Echoes_v0._1.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initializeDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +36,9 @@ namespace Echoes_v0._1.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FollowersCount = table.Column<int>(type: "int", nullable: true),
+                    FollowingCount = table.Column<int>(type: "int", nullable: true),
+                    JoinDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -53,24 +57,6 @@ namespace Echoes_v0._1.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PostModel",
-                columns: table => new
-                {
-                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Caption = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EditDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LikeCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostModel", x => x.PostId);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,6 +166,56 @@ namespace Echoes_v0._1.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostModel",
+                columns: table => new
+                {
+                    PostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Caption = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EditDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CommentsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LikeCount = table.Column<int>(type: "int", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostModel", x => x.PostId);
+                    table.ForeignKey(
+                        name: "FK_PostModel_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFollowModels",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FollowingUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CurrentUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ApplicationUserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFollowModels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFollowModels_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserFollowModels_AspNetUsers_ApplicationUserId1",
+                        column: x => x.ApplicationUserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CommentModel",
                 columns: table => new
                 {
@@ -269,6 +305,21 @@ namespace Echoes_v0._1.Migrations
                 name: "IX_LikeModel_PostModelPostId",
                 table: "LikeModel",
                 column: "PostModelPostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostModel_ApplicationUserId",
+                table: "PostModel",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFollowModels_ApplicationUserId",
+                table: "UserFollowModels",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFollowModels_ApplicationUserId1",
+                table: "UserFollowModels",
+                column: "ApplicationUserId1");
         }
 
         /// <inheritdoc />
@@ -296,13 +347,16 @@ namespace Echoes_v0._1.Migrations
                 name: "LikeModel");
 
             migrationBuilder.DropTable(
+                name: "UserFollowModels");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "PostModel");
 
             migrationBuilder.DropTable(
-                name: "PostModel");
+                name: "AspNetUsers");
         }
     }
 }

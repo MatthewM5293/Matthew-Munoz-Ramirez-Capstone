@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -21,6 +22,9 @@ public class HomeController : Controller
     private static string? UserId;
     private static string? PostId;
     private static string? UserName;
+    private static string? UserProfilePicture;
+
+    private static ApplicationUser? foundUser; //global user
 
     public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
     {
@@ -43,6 +47,10 @@ public class HomeController : Controller
                 ViewBag.UserName = UserName; //Viewbag data
             }
         }
+
+        //set up
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        foundUser = dal.GetUser(id);
 
         HomeModel homeModel = new HomeModel();
 
@@ -86,7 +94,7 @@ public class HomeController : Controller
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (id == null) return NotFound();
 
-        ApplicationUser foundUser = dal.GetUser(id);
+        foundUser = dal.GetUser(id);
         if (foundUser == null) return NotFound();
 
         return View("Profile/Profile", foundUser);
@@ -100,15 +108,15 @@ public class HomeController : Controller
 
         if (id == null) return NotFound();
 
-        ApplicationUser foundUser = dal.GetUser(id);
-        if (foundUser == null) return NotFound();
+       ApplicationUser userFound = dal.GetUser(id);
+        if (userFound == null) return NotFound();
 
         //populate Followers
         var allFollowers = _context.UserFollowModels.ToList();
-        foundUser.Followers = allFollowers.Where(fm => fm.FollowingUserId.ToString().Equals(id)).ToList();
-        foundUser.Following = allFollowers.Where(fm => fm.CurrentUserId.ToString().Equals(id)).ToList();
+        userFound.Followers = allFollowers.Where(fm => fm.FollowingUserId.ToString().Equals(id)).ToList();
+        userFound.Following = allFollowers.Where(fm => fm.CurrentUserId.ToString().Equals(id)).ToList();
 
-        return View("Profile/Profile", foundUser);
+        return View("Profile/Profile", userFound);
     }
 
     [HttpGet]
@@ -118,7 +126,7 @@ public class HomeController : Controller
         if (id == null)
             return NotFound();
 
-        ApplicationUser foundUser = dal.GetUser(id);
+        foundUser = dal.GetUser(id);
 
         if (foundUser == null) return NotFound();
 
@@ -129,18 +137,20 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult EditProfile(ApplicationUser ap)
     {
-        ApplicationUser foundUser = dal.GetUser(ap.Id);
-        if (foundUser == null) return NotFound();
+        if (ap.Id != null) foundUser = dal.GetUser(ap.Id);
 
-        if (!(ap.ProfilePicture.Contains(".png") || ap.ProfilePicture.Contains(".jpg")))
+        if (ap.Uname != foundUser.Uname)
         {
-            ModelState.AddModelError("Invalid Image Format", "Invalid Format");
+            bool validName = dal.IsValidUserName(ap.Uname);
+            if (!validName)
+            {
+                ModelState.AddModelError("UserName", errorMessage:"Username is being used by another user!");
+            }
         }
-        if (ap.Uname != foundUser.Uname && !dal.IsValidUserName(ap.Uname)) ModelState.AddModelError("Username Taken", "Username is being used by another user!");
 
         if (!ModelState.IsValid)
         {
-            return View("Profile/EditProfile", foundUser);
+            return View("Profile/EditProfile", ap);
         }
         else
         {
@@ -158,10 +168,16 @@ public class HomeController : Controller
                 //update
                 ap.ProfilePicture = stringFileName;
                 foundUser.ProfilePicture = ap.ProfilePicture;
-
             }
-            
-            foundUser.UserName = ap.UserName;
+
+            //update posts and comments
+            if (foundUser.Uname != ap.Uname || stringFileName != null)
+            {
+
+                UpdateUserFootprint(new Guid(foundUser.Id), ap.Uname, foundUser.ProfilePicture);
+            }
+
+            foundUser.Uname = ap.Uname;
             foundUser.Name = ap.Name;
             foundUser.DateOfBirth = ap.DateOfBirth;
             foundUser.Bio = ap.Bio;
@@ -222,7 +238,6 @@ public class HomeController : Controller
         if (userFollowing == null)
         {
             //redirect to profile viewing
-
             TempData["StatusMessage"] = "Profile cannot be unfollowed, Account may be deleted";
             return RedirectToAction("Index", "Home");
         }
@@ -232,10 +247,6 @@ public class HomeController : Controller
             userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
             var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(UserId)));
 
-            //post.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postId)).ToList();
-            //var like = post.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(UserId)));
-
-            //update current User's following count
             currentUser.FollowersCount--;
 
             //update db
@@ -260,18 +271,17 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> CreatePostAsync(PostModel post)
     {
-        //var temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
         post.PostId = Guid.NewGuid();
         post.UserId = new Guid(UserId);
         post.PostDate = DateTime.Now;
 
         //to set Username and PFP
         post.UserName = UserName;
-        //post.ProfilePicture = foundUser.ProfilePictureUrl;
+        post.ProfilePicture = foundUser.ProfilePicture;        
 
-        if (!ModelState.IsValid || _context.PostModel == null || post == null)
+        if (!ModelState.IsValid || _context.PostModel == null || post == null || (String.IsNullOrEmpty(post.Caption) && String.IsNullOrEmpty(post.ImageUrl)) )
         {
-            TempData["StatusMessage"] = "Post failed to create Post";
+            TempData["StatusMessage"] = "Failed to create Post";
             return RedirectToAction("Index", "Home");
         }
 
@@ -625,6 +635,28 @@ public class HomeController : Controller
         var posts = _context.PostModel.ToList();
         var allComments = _context.CommentModel.ToList();
         var allLikes = _context.LikeModel.ToList();
+    }
+
+    //Update Posts and Comments pfp/Username when Profile is edited
+    private void UpdateUserFootprint(Guid userId, string userName, string profilePicture) 
+    {
+        var posts = _context.PostModel.Where(p => p.UserId.Equals(userId));
+        var comments = _context.CommentModel.Where(c => c.UserId.Equals(userId));
+
+        foreach (var post in posts) 
+        {
+            post.UserName = userName;
+            post.ProfilePicture = profilePicture;
+            _context.PostModel.Update(post);
+        }
+
+        foreach (var comment in comments)
+        {
+            comment.Username = userName;
+            _context.CommentModel.Update(comment);
+        }
+
+        TempData["StatusMessage"] = "Profile Successfully updated";
     }
 
     #endregion

@@ -3,7 +3,7 @@
 <form asp-controller="home" asp-action="AddComment" method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Post</h2>
+            <h2 class="text-primary">Create Comment</h2>
             <hr />
         </div>
         <div class="mb-3">
@@ -15,8 +15,10 @@
         </div>
         <div class="mb-3">
             @*            asp binds it to the title in the model*@
-            <label asp-for="Message">Write your Message: </label>
-            <input asp-for="Message" class="form-control-plaintext" placeholder="Add a comment..." />
+            <label asp-for="Message" style="margin-bottom:1%">Write your Message: </label>
+            @*<input asp-for="Message" class="form-control" placeholder="Add a comment..." />*@
+            <textarea asp-for="@Model.Message" class="bg-transparent input-group mx-lg-auto" placeholder="Add a comment..." rows="4" cols="50" maxlength="2000"></textarea>
+
             <span asp-validation-for="Message" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary">

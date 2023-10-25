@@ -6,16 +6,15 @@
     <div class="form-group">
         @*<input asp-for="@Model.Caption" class="form-control" />*@
 
-        <label asp-for="@Model.Caption" class="control-label"></label>
-        <br />
-        <textarea asp-for="@Model.Caption" class="card-group mx-lg-auto" placeholder="Type here!" rows="4" cols="50" maxlength="2000"></textarea>
+        <label asp-for="@Model.Caption" class="control-label" style="margin-bottom:2%"></label>
+        <textarea asp-for="@Model.Caption" class="bg-transparent input-group mx-lg-auto" placeholder="Type here!" rows="4" cols="50" maxlength="2000"></textarea>
         <span asp-validation-for="Caption" class="text-danger"></span>
 
         <span asp-validation-for="@Model.Caption" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label for="formFile" class="form-label mt-4">Default file input example</label>
+    <div class="form-group" style="margin-bottom:5%">
+        <label for="formFile" class="form-label mt-4">Image Upload for Post</label>
         <input accept="image/jpeg,image/png" type="file" id="formFile" asp-for="@Model.Image">
     </div>
 

@@ -44,7 +44,7 @@ namespace Echoes_v0._1.Data
         {
             //check if Username is taken
             var result = EchoesDB.ApplicationUsers.Any(user => user.Uname == userName);
-            return result;
+            return !result;
         }
 
         public PostModel GetUserPost(int? id)

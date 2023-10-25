@@ -31,7 +31,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender//,
-                                    //RoleManager<IdentityRole> roleManager
+            //RoleManager<IdentityRole> roleManager
             )
         {
             _userManager = userManager;

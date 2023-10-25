@@ -28,6 +28,7 @@ public class PostModel
 
     public string? UserName { get; set; }
 
+    public string? ProfilePicture { get; set; }
 
     [MaxLength(2000)]
     public string? Caption { get; set; }

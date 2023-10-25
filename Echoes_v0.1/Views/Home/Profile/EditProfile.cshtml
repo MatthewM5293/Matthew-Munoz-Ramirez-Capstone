@@ -12,9 +12,11 @@
         <div class="form-group mb-3">
             <label asp-for="ProfilePicture" class="form-label mt-4">Profile Picture</label>
             <h5 class="card-title">
-                @*<iframe width="700" src="~/ProfilePictures/@Model.ProfilePicture"></iframe>*@
-                <img width="500" height="auto" src="~/ProfilePictures/@Model.ProfilePicture" />
+                <picture>
+                    <img class="img_round" width="500" height="auto" src="~/ProfilePictures/@Model.ProfilePicture" />
+                </picture>
             </h5>
+            <br />
             <input class="form-control" accept="image/jpeg,image/png" type="file" asp-for="@Model.Image">
             <span asp-validation-for="ProfilePicture" class="text-danger"></span>
         </div>

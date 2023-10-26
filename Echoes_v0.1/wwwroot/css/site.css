@@ -1,5 +1,17 @@
+/*Echoes Pallete*/
+/* CSS HEX */
+:root,
+.pallet
+{
+    --celadon: #94e8b4ff;
+    --cambridge-blue: #72bda3ff;
+    --sea-green: #5e8c61ff;
+    --feldgrau: #4e6151ff;
+    --van-dyke: #3b322cff;
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
@@ -27,7 +39,7 @@ body {
     /*    width: 60px;
     height: 60px;*/
     font-size: 25px;
-    bottom: 20px;
+    bottom: 10%;
     right: 60px;
     background-color: transparent;
     color: green;
@@ -53,7 +65,7 @@ body {
     z-index: 1030
 }
 
-@media (min-width: 768px) {
+@media all and (min-width: 768px) {
     .navbar.fixed-left {
         bottom: 0;
         width: 232px;
@@ -81,7 +93,7 @@ body {
                     }
 }
 
-@media (min-width: 768px) {
+@media all and (min-width: 768px) {
     .navbar.fixed-left {
         right: auto
     }

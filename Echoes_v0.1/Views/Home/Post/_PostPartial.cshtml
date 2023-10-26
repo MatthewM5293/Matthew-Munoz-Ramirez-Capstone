@@ -2,7 +2,7 @@
 
 @if (Model != null)
 {
-    <div class="container-fluid mx-auto" style="margin-bottom:2%">
+    <div class="container-fluid mx-auto" style="margin-bottom:1%; margin-top:1%;">
         <div class="card" id="@Model.PostId.ToString()">
 
             <div class="card-header">
@@ -44,18 +44,17 @@
             </div>
 
             @*Post Caption*@
-            <div class="card-body">
-                <h6 class="card-subtitle">@Model.Caption</h6>
-            </div>
-
-            <div class="card-subtitle" style="margin-left:2%;">
-                <p class="card-text"></p>
-            </div>
+            @if (!String.IsNullOrEmpty(Model.Caption))
+            {
+                <div class="card-body">
+                    <h6 class="card-subtitle">@Model.Caption</h6>
+                </div>
+                <hr />
+            }
 
             @*Post image*@
             @if (!String.IsNullOrEmpty(Model.ImageUrl))
             {
-                <hr />
                 <div class="card-img text-center">
                     <img fill="#dee2e6" dy=".3em" width="500" height="auto" src="~/Images/@Model.ImageUrl" />
                 </div>

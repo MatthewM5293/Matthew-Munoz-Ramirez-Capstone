@@ -25,17 +25,39 @@
                         <hr />
                         <li class="nav-item" style="margin-bottom:1%">
                             <a class="nav-link active" asp-area="" asp-controller="Home" asp-action="Index">
-                                Home
+                                <span>
+                                    <i class="bi bi-house-fill" style="margin-right:8%"></i>
+                                </span>                              
+                                    Home                                
                             </a>
                         </li>
                         <li class="nav-item" style="margin-bottom:1%">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Search">
+                                <span>
+                                    <i class="bi bi-search" style="margin-right:8%"></i>
+                                        Search                                    
+                                </span>
+                            </a>
                         </li>
                         <li class="nav-item" style="margin-bottom:1%">
-                            <a class="nav-link" asp-area="Profile" asp-controller="Home" asp-action="Profile">Profile</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Notifications">
+                                <span>
+                                    <i class="bi bi-bell-fill" style="margin-right:8%"></i>
+                                    
+                                        Notifications
+                                    
+                                </span>
+                            </a>
                         </li>
                         <li class="nav-item" style="margin-bottom:1%">
-                            <a class="nav-link" asp-controller="Home" asp-action="Search">Search User</a>
+                            <a class="nav-link" asp-area="Profile" asp-controller="Home" asp-action="Profile">
+                                <span>
+                                    <i class="bi bi-person-circle" style="margin-right:8%"></i>
+                                    
+                                        Profile
+                                    
+                                </span>
+                                </a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />

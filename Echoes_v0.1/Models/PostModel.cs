@@ -52,9 +52,11 @@ public class PostModel
 
     //Likes
     public int LikeCount { get; set; } = 0;
-
     public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
     public List<LikeModel>? LikedBy { get; set; }
+
+    [NotMapped]
+    public string? TimeAgo { get; set; }
 
     //Empty Constructor 
     public PostModel()

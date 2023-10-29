@@ -2,13 +2,19 @@
 @{
     ViewData["Title"] = "Home";
 }
+<h1 class="bg-gradient align-content-md-start">@ViewData["Title"]</h1>
+<hr />
 
 @if (Model == null)
 {
-
+    <div class="loadingio-spinner-dual-ring-yivk72x2rcc" id="loader" onload="myFunction()">
+        <div class="ldio-8kdhkbds30a">
+            <div></div><div><div></div></div>
+        </div>
+    </div>
 }
 else
-{   
+{
     <!-- Trigger/Open The Modal -->
     <a id="myBtn" class="float my-float"><i class="bi bi-plus-square"></i></a>
     <div id="myModal" class="modal">
@@ -27,8 +33,8 @@ else
                         <partial name="~/Views/Home/Post/CreatePost.cshtml" for="@Model.Post">
                     </div>
                     @*<div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>*@
+                <button type="button" class="btn btn-primary">Save changes</button>
+                </div>*@
                 </div>
             </div>
         </div>
@@ -43,7 +49,7 @@ else
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
-        <div class="mx-auto">
+        <div id="myDiv" class="mx-auto">
             @foreach (PostModel pm in Model.Posts)
             {
                 <div class="d-flex flex-wrap">
@@ -52,4 +58,17 @@ else
             }
         </div>
     </div>
+
+    <script>
+        var myVar;
+
+        function myFunction() {
+            myVar = setTimeout(showPage, 3000);
+        }
+
+        function showPage() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("myDiv").style.display = "block";
+        }
+    </script>
 }  

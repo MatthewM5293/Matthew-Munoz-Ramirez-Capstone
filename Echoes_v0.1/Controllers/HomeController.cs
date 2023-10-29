@@ -64,7 +64,9 @@ public class HomeController : Controller
 
         foreach (PostModel model in posts)
         {
-            //model.Comments = _context.CommentModel.ToList();
+            //readable time
+            model.TimeAgo = GetTimeSince(model.PostDate);
+            //comments
             model.Comments = allComments.Where(c => c.PostId == model.PostId).ToList();
             //likes
             model.LikedBy = allLikes.Where(l => l.PostId == model.PostId).ToList();
@@ -633,6 +635,10 @@ public class HomeController : Controller
     private void PopulatePosts() 
     {
         var posts = _context.PostModel.ToList();
+        foreach (var post in posts) 
+        {
+            post.TimeAgo = GetTimeSince(post.PostDate);
+        }
         var allComments = _context.CommentModel.ToList();
         var allLikes = _context.LikeModel.ToList();
     }
@@ -658,6 +664,46 @@ public class HomeController : Controller
 
         TempData["StatusMessage"] = "Profile Successfully updated";
     }
+
+    //From: https://www.thatsoftwaredude.com/content/1019/how-to-calculate-time-ago-in-c
+    //Convert's Posts date into something more readable for the User
+    public static string GetTimeSince(DateTime objDateTime)
+    {
+        // here we are going to subtract the passed in DateTime from the current time converted to UTC
+        TimeSpan ts = DateTime.Now.Subtract(objDateTime);
+        int intDays = ts.Days;
+        int intHours = ts.Hours;
+        int intMinutes = ts.Minutes;
+        int intSeconds = ts.Seconds;
+
+        if (intDays > 0)
+            return string.Format("{0} days", intDays);
+
+        if (intHours > 0)
+            return string.Format("{0} hours", intHours);
+
+        if (intMinutes > 0)
+            return string.Format("{0} minutes", intMinutes);
+
+        if (intSeconds > 0)
+            return string.Format("{0} seconds", intSeconds);
+
+        // let's handle future times..just in case
+        if (intDays < 0)
+            return string.Format("in {0} days", Math.Abs(intDays));
+
+        if (intHours < 0)
+            return string.Format("in {0} hours", Math.Abs(intHours));
+
+        if (intMinutes < 0)
+            return string.Format("in {0} minutes", Math.Abs(intMinutes));
+
+        if (intSeconds < 0)
+            return string.Format("in {0} seconds", Math.Abs(intSeconds));
+
+        return "moments";
+    }
+
 
     #endregion
 

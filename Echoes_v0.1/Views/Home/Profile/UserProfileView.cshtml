@@ -5,6 +5,70 @@
 }
 else
 {
+    <div class="container" style="margin-bottom:1%; margin-top:1%; width:60%; padding-block:1%;">
+        <div class="card" id="@Model.Id.ToString()">
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div>
+                        <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" />
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-md-offset-2">
+                    <div class="col-sm-auto">
+                        <p style="margin-left:1%; margin-right:1%">
+                            <h3>
+                                @Model.Uname
+                            </h3>
+                            @if (ViewBag.UserId.Equals(Model.Id))
+                            {
+                                <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-success mx-auto">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                            }
+                            else if (Model.Followers.FirstOrDefault(l => l.CurrentUserId.Equals(new Guid(ViewBag.UserId))) == null)
+                            {
+                                <a asp-controller="Home" asp-action="FollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
+                                    <b>Follow</b>
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Home" asp-action="UnFollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
+                                    <b>Unfollow</b>
+                                </a>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                    <div class="col-md-auto">Posts</div>
+                    <div class="col-md-auto">Followers</div>
+                    <div class="col-md-auto">Following</div>
+            </div>
+            <div class="row" style="margin-top:1%; margin-bottom:1%">
+                <div class="col-1"></div>
+                <div class="col-sm-auto"><b>@Model.Name</b></div>
+            </div>
+            <div class="row">
+                <div class="col-1"></div>
+                <div class="col-sm-auto" style="margin-left:1%; margin-right:1%; max-width:85%">@Model.Bio</div>
+            </div>
+            @if (Model.DateOfBirth.HasValue)
+            {
+                <div class="row">
+                    <div class="col-lg-1"></div>
+                    <div class="col-sm-auto disabled"> Born on: @Model.DateOfBirth.Value.ToShortDateString()</div>
+                </div>
+            }
+        </div>
+    </div>
+
+
+
     <div class="card mb-3 align-content-center align-self-center text-center">
         <h2 class="card-header">
             <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" class="card-header">
@@ -27,54 +91,10 @@ else
             @*Joined Date*@
             @if (Model.DateOfBirth.HasValue)
             {
-                <p class="card-text">@Model.JoinDate.Value.ToShortDateString()</p>
+                @*<p class="card-text">@Model.JoinDate.Value.ToShortDateString()</p>*@
             }
         </div>
     </div>
-
-    ///
-    <header>
-        <div class="header-grid">
-            <div class="profile-pic">
-                <img src="images/profile-logo.jpg" />
-            </div>
-            <div class="profile-info">
-                <div class="title row">
-                    <h2>apple</h2>
-                    <span class="verified-icon"></span>
-                    <button class="primary">Follow</button>
-                </div>
-                <div class="desktop-only">
-                    <div class="details row">
-                        <ul>
-                            <li><span>722</span> posts</li>
-                            <li><span>25.1m</span> followers</li>
-                            <li><span>6</span> following</li>
-                        </ul>
-                    </div>
-                    <div class="description row last">
-                        <h1>apple</h1>
-                        <span>
-                            Everyone has a story to tell.
-                            <br />
-                            Tag <a>#ShotoniPhone</a> to take part.
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="profile-info mobile-only">
-            <div class="description row">
-                <h1>apple</h1>
-                <span>
-                    Everyone has a story to tell.
-                    <br />
-                    Tag <a>#ShotoniPhone</a> to take part.
-                </span>
-            </div>
-        </div>
-    </header>
-    ///
 
 
 }

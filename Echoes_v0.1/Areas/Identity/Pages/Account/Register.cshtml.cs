@@ -135,7 +135,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 //custom fields
                 user.Uname = Input.Username;
-                user.Name = Input.Name;
+                user.Name = Input.Name.Trim();
 
                 //Creates User
                 var result = await _userManager.CreateAsync(user, Input.Password);

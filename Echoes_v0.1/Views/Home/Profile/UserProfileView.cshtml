@@ -2,99 +2,93 @@
 
 @if (Model == null)
 {
+    <div class="loader"></div>
 }
 else
 {
-    <div class="container" style="margin-bottom:1%; margin-top:1%; width:60%; padding-block:1%;">
-        <div class="card" id="@Model.Id.ToString()">
+    <header>
+        <div class="container" style="width:80%; padding-block:1%;">
 
-            <div class="row">
+            <div class="profile card">
 
-                <div class="col-md-4">
-                    <div>
-                        <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" />
-                    </div>
+                <div class="profile-image">
+                    <img src="~/ProfilePictures/@Model.ProfilePicture" alt="">
                 </div>
 
-                <div class="col-md-6 col-md-offset-2">
-                    <div class="col-sm-auto">
-                        <p style="margin-left:1%; margin-right:1%">
-                            <h3>
-                                @Model.Uname
-                            </h3>
-                            @if (ViewBag.UserId.Equals(Model.Id))
-                            {
-                                <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-success mx-auto">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                            }
-                            else if (Model.Followers.FirstOrDefault(l => l.CurrentUserId.Equals(new Guid(ViewBag.UserId))) == null)
-                            {
-                                <a asp-controller="Home" asp-action="FollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
-                                    <b>Follow</b>
-                                </a>
-                            }
-                            else
-                            {
-                                <a asp-controller="Home" asp-action="UnFollowUser" asp-route-userId="@Model.Id" class="btn btn-primary mx-auto">
-                                    <b>Unfollow</b>
-                                </a>
-                            }
-                        </p>
-                    </div>
+                <div class="profile-user-settings">
+
+                    <h1 class="profile-user-name">@Model.Uname</h1>
+
+                    @if (ViewBag.UserId.Equals(Model.Id))
+                    {
+                        <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn profile-edit-btn">
+                            <i class="bi bi-pencil-square"></i> Edit Profile
+                        </a>
+                    }
+                    else if (Model.Followers.FirstOrDefault(l => l.CurrentUserId.Equals(new Guid(ViewBag.UserId))) == null)
+                    {
+                        <a asp-controller="Home" asp-action="FollowUser" asp-route-userId="@Model.Id" class="btn profile-edit-btn">
+                            <b>Follow</b>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home" asp-action="UnFollowUser" asp-route-userId="@Model.Id" class="btn profile-edit-btn">
+                            <b>Unfollow</b>
+                        </a>
+                    }
                 </div>
-            </div>
-            <div class="row">
-                    <div class="col-md-auto">Posts</div>
-                    <div class="col-md-auto">Followers</div>
-                    <div class="col-md-auto">Following</div>
-            </div>
-            <div class="row" style="margin-top:1%; margin-bottom:1%">
-                <div class="col-1"></div>
-                <div class="col-sm-auto"><b>@Model.Name</b></div>
-            </div>
-            <div class="row">
-                <div class="col-1"></div>
-                <div class="col-sm-auto" style="margin-left:1%; margin-right:1%; max-width:85%">@Model.Bio</div>
-            </div>
-            @if (Model.DateOfBirth.HasValue)
-            {
-                <div class="row">
-                    <div class="col-lg-1"></div>
-                    <div class="col-sm-auto disabled"> Born on: @Model.DateOfBirth.Value.ToShortDateString()</div>
+
+                <div class="profile-stats">
+                    <ul>
+                        <li><span class="profile-stat-count">@Model.PostCount</span> posts</li>
+                        <li><span class="profile-stat-count">@Model.FollowersCount</span> followers</li>
+                        <li><span class="profile-stat-count">@Model.FollowingCount</span> following</li>
+                    </ul>
+
                 </div>
-            }
+
+                <div class="profile-bio text-center">
+                    <span class="profile-real-name">@Model.Name</span>
+                    <p>@Model.Bio</p>
+                    <p class="disabled" style="color:#4e6151ff">Joined: @Model.JoinDate.ToShortDateString()</p>
+                </div>
+
+            </div>
+            <!-- End of profile section -->
+
         </div>
+        <!-- End of container -->
+
+    </header>
+
+
+    //posts here
+    <div class="container">
+
+        <div class="gallery">
+
+            @*@foreach (PostModel post in Model.Posts)
+        {
+
+        <div class="gallery-item" tabindex="0">
+        <partial name="Post/_PostPartial.cshtml" for="@post" class="gallery-image">
+        <div class="gallery-item-info">
+
+        <ul>
+        <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i>@post.LikeCount</li>
+        <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i>@post.CommentCount</li>
+        </ul>
+
+        </div>
+
+        </div>
+        }*@
+
+        </div>
+        <!-- End of gallery -->
+        @*<div class="loader"></div>*@
+
     </div>
-
-
-
-    <div class="card mb-3 align-content-center align-self-center text-center">
-        <h2 class="card-header">
-            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" class="card-header">
-                @Model.Uname
-            </a>
-        </h2>
-        @*<h2 class="card-title">@Model.Uname </h2>*@
-        <div class="card-body">
-            <h5 class="card-title"> <img class="img_round" width="500" height="500" src="~/ProfilePictures/@Model.ProfilePicture" /> </h5>
-        </div>
-        <div class="card-body">
-            <h3 class="card-title">@Model.Name </h3>
-            @*            <h3>About me:</h3>*@
-            <p class="card-text">@Model.Bio</p>
-            @if (Model.DateOfBirth.HasValue)
-            {
-                <p class="card-text">@Model.DateOfBirth.Value.ToShortDateString()</p>
-            }
-
-            @*Joined Date*@
-            @if (Model.DateOfBirth.HasValue)
-            {
-                @*<p class="card-text">@Model.JoinDate.Value.ToShortDateString()</p>*@
-            }
-        </div>
-    </div>
-
-
+    <!-- End of container -->
 }

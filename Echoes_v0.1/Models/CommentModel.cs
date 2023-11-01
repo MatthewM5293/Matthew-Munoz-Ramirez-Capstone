@@ -38,6 +38,9 @@ public class CommentModel
     [DataType(DataType.DateTime)]
     public DateTime? EditDate { get; set; }
 
+    [NotMapped]
+    public string TimeAgo { get; set; }
+
     public CommentModel()
     {
     }

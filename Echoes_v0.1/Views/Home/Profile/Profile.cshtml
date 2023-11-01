@@ -12,7 +12,7 @@ else
             <partial name="UserProfileView.cshtml" for="@Model" />
         </div>
 
-        @if (ViewBag.UserId.Equals(Model.Id))
+       @* @if (ViewBag.UserId.Equals(Model.Id))
         {
             <div class="card-footer">
                 <a asp-controller="Home" asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary mx-auto">
@@ -35,7 +35,7 @@ else
                     <b>Unfollow</b>
                 </a>
             </div>
-        }
+        }*@
     </div>
 
 

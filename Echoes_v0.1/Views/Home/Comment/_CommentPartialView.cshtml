@@ -2,30 +2,60 @@
 
 @if (Model != null)
 {
-    <div class="list-group btn-success">
-        <div class="list-group-item">
-            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId.ToString()" class="list-group-item-action active a">
-                @Model.Username
-            </a>
-        </div>
-
-        <a class="list-group-item list-group-item-action disabled">@Model.Message</a>
-        <div class="list-group-item list-group-item-action">
-            <a>
-                @Model.PostDate
-            </a>
-
-            @if (ViewBag.UserId == Model.UserId.ToString())
-            {
-                <div class="align-right">
-                    <a asp-controller="Home" asp-action="EditComment" asp-route-id="@Model.CommentId" class="btn btn-primary mx-auto">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    <a asp-controller="Home" asp-action="DeleteComment" asp-route-comment="@Model" class="btn btn-danger align-right mx-auto">
-                        <i class="bi bi-trash"></i> Delete
-                    </a>
+    <div class="container" style="margin-bottom:1%; margin-top:1%; width:60%;">
+        <div class="card" id="@Model.PostId.ToString()" style="border:dashed; border-color:#4e6151ff">
+            <div class="row" style="margin-left:0%; margin-top:1%;">
+                @*<div class="col-sm-1" style="margin-right:2%;">
+                <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
+                    <img class="img_round" src="~/ProfilePictures/@Model" style="min-height:100%; min-width:100%; height:100%; width:175%;" />
+                </a>
+            </div>*@
+                <div class="col-sm-auto">
+                    <p style="margin-top:3%">
+                        <strong>
+                            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
+                                @Model.Username
+                            </a>
+                        </strong>
+                    </p>
                 </div>
-            }
+                <div class="col-sm-auto" style="margin-top:0%">
+                    <p>
+                        Posted: @Model.TimeAgo ago
+                    </p>
+                </div>
+                <div class="col-sm-auto" style="margin-left:60%; margin-right:auto">
+                    @if (ViewBag.UserId == Model.UserId.ToString())
+                    {
+                        <div class="btn dropdown" style="width:auto;">
+                            <a class="" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
+                            </a>
+                            <div class="dropdown-menu" style="">
+                                <h6 class="dropdown-header">Comment options</h6>
+                                <a asp-controller="Home" asp-action="EditComment" asp-route-id="@Model.CommentId" class="dropdown-item">
+                                    <i class="bi bi-pencil-square"></i> Edit Comment
+                                </a>
+                                <a asp-controller="Home" asp-action="DeleteComment" asp-route-id="@Model.CommentId" class="dropdown-item">
+                                    <i class="bi bi-trash"></i> Delete Comment
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-1">
+                    <span></span>
+                </div>
+                <div class="col-xl">
+                    <div class="card-body">
+                        <p class="card-subtitle" style="word-wrap:inherit;">@Model.Message</p>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

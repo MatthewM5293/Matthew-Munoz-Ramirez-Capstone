@@ -110,7 +110,7 @@ public class HomeController : Controller
 
         if (id == null) return NotFound();
 
-       ApplicationUser userFound = dal.GetUser(id);
+        ApplicationUser userFound = dal.GetUser(id);
         if (userFound == null) return NotFound();
 
         //populate Followers
@@ -146,7 +146,7 @@ public class HomeController : Controller
             bool validName = dal.IsValidUserName(ap.Uname);
             if (!validName)
             {
-                ModelState.AddModelError("UserName", errorMessage:"Username is being used by another user!");
+                ModelState.AddModelError("UserName", errorMessage: "Username is being used by another user!");
             }
         }
 
@@ -235,7 +235,6 @@ public class HomeController : Controller
         //get user being unfollowed
         var userFollowing = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(userId.ToString()));
         var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(UserId));
-        //var post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId));
 
         if (userFollowing == null)
         {
@@ -276,36 +275,57 @@ public class HomeController : Controller
         post.PostId = Guid.NewGuid();
         post.UserId = new Guid(UserId);
         post.PostDate = DateTime.Now;
-
-        //to set Username and PFP
-        post.UserName = UserName;
-        post.ProfilePicture = foundUser.ProfilePicture;        
-
-        if (!ModelState.IsValid || _context.PostModel == null || post == null || (String.IsNullOrEmpty(post.Caption) && String.IsNullOrEmpty(post.ImageUrl)) )
+        if (!ModelState.IsValid || _context.PostModel == null || post == null || (String.IsNullOrEmpty(post.Caption) && String.IsNullOrEmpty(post.ImageUrl)))
         {
             TempData["StatusMessage"] = "Failed to create Post";
             return RedirectToAction("Index", "Home");
         }
-
-        //Images
-        string stringFileName = UploadFile(post);
-        if (stringFileName != null)
+        else
         {
-            post.ImageUrl = stringFileName;
+            //to set Username and PFP
+            post.UserName = UserName;
+            post.ProfilePicture = foundUser.ProfilePicture;
+            post.Caption = post.Caption.Trim();
+
+            //Images
+            string stringFileName = UploadFile(post);
+            if (stringFileName != null)
+            {
+                post.ImageUrl = stringFileName;
+            }
+
+            _context.PostModel.Add(post);
+            await _context.SaveChangesAsync();
+
+
+            TempData["StatusMessage"] = "Post successfully created";
+            return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
         }
-
-        _context.PostModel.Add(post);
-        await _context.SaveChangesAsync();
-
-
-        TempData["StatusMessage"] = "Post successfully created";
-        return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
     }
 
     //display post
-    public IActionResult Post()
+    public IActionResult Post(Guid postId)
     {
-        return View("Post/Details");
+        ViewBag.UserId = UserId;
+        //static post string
+        PostId = postId.ToString();
+        ViewBag.PostID = PostId; //viewbag data
+        PostViewModel postViewModel = new PostViewModel
+        {
+            Post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId))
+        };
+        if (postViewModel.Post != null)
+        {
+            PopulatePost(postViewModel.Post);
+            return View("Post/_PostView", postViewModel);
+        }
+
+        else
+        {
+            TempData["StatusMessage"] = "Post not found";
+            return RedirectToAction("Index", "Home");
+        }
+
     }
 
     [HttpGet]
@@ -335,9 +355,10 @@ public class HomeController : Controller
 
                 TempData["StatusMessage"] = "Nothing to be updated";
                 return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
-            } 
-
-            _context.PostModel.Update(postModel);
+            }
+            foundPost.Caption = postModel.Caption;
+            foundPost.EditDate = postModel.EditDate;
+            _context.PostModel.Update(foundPost);
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = "Post successfully updated";
@@ -379,7 +400,7 @@ public class HomeController : Controller
             filePath += "\\" + post.ImageUrl;
             if (System.IO.File.Exists(filePath))
             {
-                System.IO.File.Delete(filePath);    
+                System.IO.File.Delete(filePath);
             }
 
         }
@@ -469,10 +490,13 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddCommentAsync(CommentModel comment)
-
+    public async Task<IActionResult> AddCommentAsync(string PostID, CommentModel comment)
     {
-        //var temp = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (PostID != null)
+        {
+            ViewBag.PostID = PostID; //viewbag data
+            PostId = PostID; // static string
+        }
         comment.CommentId = Guid.NewGuid();
         comment.PostId = new Guid(PostId);
         comment.UserId = new Guid(UserId);
@@ -483,13 +507,13 @@ public class HomeController : Controller
 
         if (comment.Message.Length < 1 || _context == null || comment == null)
         {
-            return View("Comment/CreateComment");
+            return Post(comment.PostId);
         }
 
         _context.CommentModel.Add(comment);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
+        return Post(comment.PostId);
     }
 
     [HttpGet]
@@ -497,7 +521,6 @@ public class HomeController : Controller
     {
         if (id == null) return NotFound();
 
-        //CommentModel foundComment = dal.GetComment(id);
         CommentModel foundComment = _context.CommentModel.FirstOrDefault(c => c.CommentId.Equals(id));
 
         if (foundComment == null) return NotFound();
@@ -516,10 +539,10 @@ public class HomeController : Controller
         _context.CommentModel.Update(comment);
         await _context.SaveChangesAsync();
 
-        return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
+        return Post(comment.PostId);
     }
 
-    //[HttpPost]
+    [HttpPost]
     public async Task<IActionResult> DeleteCommentAsync(CommentModel comment)
     {
         //CommentModel foundComment;
@@ -537,6 +560,24 @@ public class HomeController : Controller
 
         return RedirectToAction("Index", "Home", fragment: comment.PostId.ToString());
     }
+    public async Task<IActionResult> DeleteCommentAsync(CommentModel comment, Guid id)
+    {
+        CommentModel foundComment = _context.CommentModel.FirstOrDefault(c => c.CommentId.Equals(id));
+        if (foundComment == null)
+        {
+            //validator
+            ModelState.AddModelError("CommentId", "Cannot find comment to delete");
+            return Post(new Guid(PostId));
+        }
+        else
+        {
+            //comment.PostId = Guid.Empty;
+            _context.CommentModel.Remove(foundComment);
+            await _context.SaveChangesAsync();
+        }
+
+        return Post(foundComment.PostId);
+    }
 
     #endregion
 
@@ -545,7 +586,7 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Search()
     {
-
+        ViewBag.UserId = UserId;
         TempData["key"] = "";
 
         SearchViewModel searchModel = new SearchViewModel();
@@ -557,10 +598,12 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult Search(string key)
     {
+        ViewBag.UserId = UserId;
+
+
         SearchViewModel searchModel = new SearchViewModel();
         searchModel.Users = _context.ApplicationUsers.ToList();
         searchModel.Posts = _context.PostModel.ToList();
-
         if (String.IsNullOrEmpty(key))
         {
             return View("Search/UserSearch", searchModel);
@@ -568,21 +611,21 @@ public class HomeController : Controller
 
         TempData["key"] = key;
 
-        //returns searched
         //filters
         searchModel.Users = searchModel.Users.Where(c => c.Uname.ToLower().Contains(key.ToLower())).ToList();
         searchModel.Posts = searchModel.Posts.Where(p => p.Caption.ToLower().Contains(key.ToLower())).ToList();
 
+        //returns searched
         return View("Search/UserSearch", searchModel);
     }
     #endregion
 
     #region Helped Methods
 
-    private string UploadFile(PostModel postModel) 
+    private string UploadFile(PostModel postModel)
     {
         string filename = null;
-        if (postModel.Image != null) 
+        if (postModel.Image != null)
         {
             // Create the directory if it does not exist.
             if (!Directory.Exists(Path.Combine(_webHostEnvironment.WebRootPath, "Images")))
@@ -594,7 +637,7 @@ public class HomeController : Controller
             filename = Guid.NewGuid().ToString() + "-" + postModel.Image.FileName;
 
             string filePath = Path.Combine(uploadDirectory, filename);
-            
+
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 postModel.Image.CopyTo(fileStream);
@@ -603,11 +646,11 @@ public class HomeController : Controller
 
         return filename;
     }
-    
-    private string UploadFile(ApplicationUser applicationUser) 
+
+    private string UploadFile(ApplicationUser applicationUser)
     {
         string filename = null;
-        if (applicationUser.Image != null) 
+        if (applicationUser.Image != null)
         {
             // Create the directory if it does not exist.
             if (!Directory.Exists(Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures")))
@@ -632,10 +675,10 @@ public class HomeController : Controller
     }
 
     //populate likes
-    private void PopulatePosts() 
+    private void PopulatePosts()
     {
         var posts = _context.PostModel.ToList();
-        foreach (var post in posts) 
+        foreach (var post in posts)
         {
             post.TimeAgo = GetTimeSince(post.PostDate);
         }
@@ -643,13 +686,21 @@ public class HomeController : Controller
         var allLikes = _context.LikeModel.ToList();
     }
 
+    private void PopulatePost(PostModel postModel)
+    {
+        postModel.TimeAgo = GetTimeSince(postModel.PostDate);
+
+        postModel.Comments = _context.CommentModel.ToList();
+        postModel.LikedBy = _context.LikeModel.ToList();
+    }
+
     //Update Posts and Comments pfp/Username when Profile is edited
-    private void UpdateUserFootprint(Guid userId, string userName, string profilePicture) 
+    private void UpdateUserFootprint(Guid userId, string userName, string profilePicture)
     {
         var posts = _context.PostModel.Where(p => p.UserId.Equals(userId));
         var comments = _context.CommentModel.Where(c => c.UserId.Equals(userId));
 
-        foreach (var post in posts) 
+        foreach (var post in posts)
         {
             post.UserName = userName;
             post.ProfilePicture = profilePicture;

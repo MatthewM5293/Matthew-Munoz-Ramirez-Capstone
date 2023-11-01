@@ -1,0 +1,24 @@
+﻿@model PostViewModel
+
+
+@if (Model != null)
+{
+    <div class="row" style="width:fit-content;">
+        @*Post*@
+        <partial name="_PostPartial.cshtml" for="Post" />
+        @*Comments*@
+        <div>
+            <partial name="~/Views/Home/Comment/CreateComment.cshtml" for="Comment" style="position:fixed" />
+            @foreach (CommentModel commentModel in Model.Post.Comments)
+            {
+                <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@commentModel" />
+            }
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="loader"></div>
+    <span>cannot find post</span>
+}

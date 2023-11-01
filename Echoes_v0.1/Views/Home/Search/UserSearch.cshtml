@@ -21,10 +21,18 @@ else
         <div class="mx-auto">
             @if (Model.Users.Count() > 0)
             {
-                <h2>Users containing : @TempData["Key"]</h2>
+                @if (TempData["Key"] != null || TempData["Key"] != "" || TempData["Key"] != " ")
+                {
+                    <h2>Users containing : @TempData["Key"]</h2>
+                }
+                else
+                {
+                    <h2>Users</h2>
+                }
+
                 @foreach (ApplicationUser au in Model.Users)
                 {
-                    <div class="card bg-light mx-auto" style="max-width: 50rem; margin-bottom: 10px;">
+                    <div class="" style="max-width: 100%; height:auto; margin-bottom: 1%;">
                         <div class="card-body">
                             <partial name="~/Views/Home/Profile/UserProfileView.cshtml" for="@au" class="card-text" />
                         </div>
@@ -35,11 +43,18 @@ else
 
             @if (Model.Posts.Count() > 0)
             {
-                <h2>Posts containing : @TempData["Key"]</h2>
+                @if (TempData["Key"] != null || TempData["Key"] != "" || TempData["Key"] != " ")
+                {
+                    <h2>Posts containing : @TempData["Key"]</h2>
+                }
+                else
+                {
+                    <h2>Posts</h2>
+                }
                 @foreach (PostModel postModel in Model.Posts)
                 {
-                    <div class="card bg-light mx-auto" style="max-width: 50rem; margin-bottom: 10px;">
-                        <div class="card-body">
+                    <div class="mx-auto" style="max-width: 100%; height:auto; margin-bottom: 1%;">
+                        <div class="">
                             <partial name="~/Views/Home/Post/_PostPartial.cshtml" for="@postModel" class="card-text" />
                         </div>
                     </div>

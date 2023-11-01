@@ -2,9 +2,8 @@
 @{
     ViewData["Title"] = "Home";
 }
-<h1 class="bg-gradient align-content-md-start">@ViewData["Title"]</h1>
+<h1 class="bg-gradient align-content-md-start" style="width:stretch;">@ViewData["Title"]</h1>
 <hr />
-
 @if (Model == null)
 {
     <div class="loadingio-spinner-dual-ring-yivk72x2rcc" id="loader" onload="myFunction()">
@@ -32,9 +31,6 @@ else
                     <div class="modal-body">
                         <partial name="~/Views/Home/Post/CreatePost.cshtml" for="@Model.Post">
                     </div>
-                    @*<div class="modal-footer">
-                <button type="button" class="btn btn-primary">Save changes</button>
-                </div>*@
                 </div>
             </div>
         </div>

@@ -3,44 +3,44 @@
 @if (Model != null)
 {
     <div class="container" style="margin-bottom:1%; margin-top:1%; width:60%;">
-        <div class="card" id="@Model.PostId.ToString()">
+        <div class="card" id="@Model.PostId.ToString()" style="border:dashed; border-color:#4e6151ff">
 
-            <div class="row" style="margin-left:5%; margin-top:1%;">
-                <div class="col-1">
+            <div class="row" style="margin-left:0%; margin-top:1%;">
+                <div class="col-sm-1" style="margin-right:2%;">
                     <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
-                        <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" width="100%" height="100%" style="min-height:50%; min-width:50%; max-height:100%; max-width:100%;" />
+                        <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" style="min-height:100%; min-width:100%; height:100%; width:175%;" />
                     </a>
                 </div>
-                <div class="col-sm-auto">
-                    <p>
+                <div class="col-sm-auto" style="">
+                    <p style="margin-left:5%; width:fit-content">
                         Name
                     </p>
                 </div>
                 <div class="col-sm-auto">
-                    <h5>
+                    <p style="margin-top:3%">
                         <strong>
                             <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
                                 @Model.UserName
                             </a>
                         </strong>
-                    </h5>
+                    </p>
                 </div>
-                <div class="col-sm-auto nav-link">
-                    <h6>
+                <div class="col-sm-auto" style="margin-top:0%">
+                    <p>
                         Posted: @Model.TimeAgo ago
-                    </h6>
+                    </p>
                 </div>
                 <div class="col-sm-auto">
-                    <h6>
+                    <p>
                         Location
-                    </h6>
+                    </p>
                 </div>
-                <div class="col-sm-auto" style="margin-left:15%; margin-right:auto">
+                <div class="col-sm-auto" style="margin-left:20%; margin-right:auto">
                     @if (ViewBag.UserId == Model.UserId.ToString())
                     {
-                        <div class="btn dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                <i class="bi bi-three-dots-vertical"></i>
+                        <div class="btn dropdown" style="width:auto;">
+                            <a class="" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
                             </a>
                             <div class="dropdown-menu" style="">
                                 <h6 class="dropdown-header">Post options</h6>
@@ -59,13 +59,17 @@
                 </div>
             </div>
 
-            @*Row 2*@
+            @*Row 2*@   
             @if (!String.IsNullOrEmpty(Model.Caption))
             {
                 <div class="row">
+                    <div class="col-sm-1">
+                        <span></span>
+                    </div>
                     <div class="col-xl">
                         <div class="card-body">
-                            <h6 class="card-subtitle">@Model.Caption</h6>
+                            <p class="card-subtitle" style="word-wrap:inherit;">@Model.Caption</p>
+
                         </div>
                     </div>
                 </div>
@@ -73,12 +77,11 @@
             @*Row 3 Image*@
             @if (!String.IsNullOrEmpty(Model.ImageUrl))
             {
-                <div class="text-center">
-                    <div class="col-sm">
-                    </div>
-                    <div class="col-xl card-img">
-                        <img fill="#dee2e6" dy=".3em" width="80%" height="auto" src="~/Images/@Model.ImageUrl" />
-                    </div>
+                <div class="col-sm-1">
+                    <span></span>
+                </div>
+                <div class="col-xl card-img" style="margin-left:auto; align-content:center;">
+                    <img src="~/Images/@Model.ImageUrl" style=" margin-left:10%;width:80%; height:auto; border:dashed; border-color:#4e6151ff"  />
                 </div>
             }
             @*Row 4 Buttons*@
@@ -86,6 +89,7 @@
             <hr />
             <div class="row">
                 <div class="col-sm-1">
+                    <span></span>
                 </div>
                 <div class="col-sm-auto">
                     <div class="card-body">
@@ -104,7 +108,7 @@
                             {
                                 @*Cannot like post, mark as liked*@
                                 <a asp-controller="Home" asp-action="UnlikePost" asp-route-postId="@Model.PostId" class="btn">
-                                    <i class="bi bi-heart-fill"></i>
+                                    <i class="heart-icon bi bi-heart-fill"></i>
                                     <span>@Model.LikedBy.Count() Likes</span>
                                 </a>
                             }
@@ -116,10 +120,23 @@
                     <div class="card-body">
                         @if (Model.CommentsEnabled)
                         {
-                            <a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn btn-success mx-2 text-right">
-                                <i class="bi bi-chat-left"></i> Add a Comment
+                            @*<a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn">
+                    <i class="bi bi-chat-left"></i> @Model.CommentCount Comments
+                    </a>*@
+                            <a asp-controller="Home" asp-action="Post" asp-route-PostID="@Model.PostId" class="btn">
+                                <i class="bi bi-chat-left"></i> @Model.CommentCount Comments
                             </a>
                         }
+                    </div>
+                </div>
+
+                <div class="col-sm-auto">
+                    <div class="card-body">
+
+                        <input type="hidden" value="https://localhost:7009/Home/Index + @Model.PostId.ToString()" id="postURL">
+                        <a onclick="copyPostURL()" class="btn">
+                            <i class="bi bi-link-45deg"></i> Share Post
+                        </a>
                     </div>
                 </div>
             </div>
@@ -127,3 +144,20 @@
         </div>
     </div>
 }
+
+<script>
+    function copyPostURL() {
+        // Get the text field
+        var copyText = document.getElementById("postURL");
+
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+
+        // Alert the copied text
+        alert("Copied Post URL: " + copyText.value);
+    }
+</script>

@@ -93,6 +93,9 @@ namespace Echoes_v0._1.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<int>("CommentCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
 
@@ -377,12 +380,15 @@ namespace Echoes_v0._1.Migrations
                     b.Property<int>("FollowingCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("JoinDate")
+                    b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProfilePicture")
                         .IsRequired()

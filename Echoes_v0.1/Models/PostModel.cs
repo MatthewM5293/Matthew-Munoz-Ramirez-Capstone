@@ -52,6 +52,7 @@ public class PostModel
 
     //Likes
     public int LikeCount { get; set; } = 0;
+    public int CommentCount { get; set; } = 0;
     public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
     public List<LikeModel>? LikedBy { get; set; }
 

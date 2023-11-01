@@ -61,13 +61,15 @@ public class ApplicationUser : IdentityUser
     public int FollowersCount { get; set; } = 0;
     [Display(Name = "Following")]
     public int FollowingCount { get; set; } = 0;
+    [Display(Name = "Posts")]
+    public int PostCount { get; set; } = 0;
 
     //Who the User is Following
     public List<UserFollowModel>? Following { get; set; }
 
     //Join Date
     [Display(Name = "Joined on: ")]
-    public DateTime? JoinDate { get; set; }
+    public DateTime JoinDate { get; set; } = DateTime.Now;
 
     public ApplicationUser()
     {

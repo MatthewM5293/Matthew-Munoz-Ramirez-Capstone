@@ -1,32 +1,37 @@
 ﻿@model CommentModel
 
-<form asp-controller="home" asp-action="AddComment" method="post">
-    <div class="border p-3 mt-4">
-        <div class="row pb-2">
-            <h2 class="text-primary">Create Comment</h2>
-            <hr />
-        </div>
-        <div class="mb-3">
-            <input asp-for="PostId" type="hidden" value="@ViewBag" />
-            <input asp-for="UserId" type="hidden" value="TEMP" />
+<form asp-controller="Home" asp-action="AddComment" method="post" class="mx-auto" style="margin-top:1%; width:60%;">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <input asp-for="Username" type="hidden" value="TEMP" />
-            <input asp-for="PostDate" type="hidden" value="@DateTime.Now" />
-        </div>
-        <div class="mb-3">
-            @*            asp binds it to the title in the model*@
-            <label asp-for="Message" style="margin-bottom:1%">Write your Message: </label>
-            @*<input asp-for="Message" class="form-control" placeholder="Add a comment..." />*@
-            <textarea asp-for="@Model.Message" class="bg-transparent input-group mx-lg-auto" placeholder="Add a comment..." rows="4" cols="50" maxlength="2000"></textarea>
-
-            <span asp-validation-for="Message" class="text-danger"></span>
-        </div>
-        <button type="submit" class="btn btn-primary">
-            Post Comment
-        </button>
-
-        <a asp-controller="Home" asp-action="Explore" class="btn btn-secondary">
-            Back to Explore Page
-        </a>
+    <div class="form-group">
+        <input asp-for="PostId" type="hidden" value="" />
+        <input asp-for="UserId" type="hidden" value="TEMP" />
+        <input asp-for="Username" type="hidden" value="TEMP" />
+        <input asp-for="PostDate" type="hidden" value="@DateTime.Now" />
     </div>
+
+    <div class="form-group">
+        <label asp-for="Message" class="control-label" style="margin-bottom:2%"></label>
+        <textarea asp-for="Message" id="the-textarea" class="bg-transparent input-group mx-lg-auto" placeholder="Add a comment..." rows="4" cols="50" maxlength="2000" style="white-space:pre-line; color:white"></textarea>
+        <span id="current">0</span>
+        <span id="maximum">/ 2000</span>
+
+        @*<div class="form-group">
+            <textarea asp-for="@Model.Caption" id="the-textarea" class="bg-transparent input-group mx-lg-auto" placeholder="Type here!" rows="4" cols="50" maxlength="2000" style="color:white;" autofocus></textarea>
+            <div id="the-count">
+                <span asp-validation-for="@Model.Caption" id="current">0</span>
+                <span id="maximum">/ 2000</span>
+            </div>
+        </div>*@
+    </div>
+    
+    <button type="submit" class="btn btn-primary">
+        Post Comment
+    </button>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -69,7 +69,6 @@ window.onclick = function (event) {
     }
 }
 
-
 //Popouts
 $(function () {
     $("[data-toggle=popover]").popover({
@@ -84,4 +83,14 @@ $(function () {
             return $(title).children(".popover-heading").html();
         }
     });
+});
+
+/*Textarea character limits from https://codepen.io/patrickwestwood/pen/gPPywv */
+$("textarea").keyup(function () {
+    var characterCount = $(this).val().length,
+        current = $('#current'),
+        maximum = $('#maximum'),
+        theCount = $('#the-count');
+
+    current.text(characterCount);
 });

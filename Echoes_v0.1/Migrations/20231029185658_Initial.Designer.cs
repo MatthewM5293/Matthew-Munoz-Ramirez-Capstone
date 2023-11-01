@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Echoes_v0._1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231024175320_Postv2")]
-    partial class Postv2
+    [Migration("20231029185658_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,6 +95,9 @@ namespace Echoes_v0._1.Migrations
                     b.Property<string>("Caption")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("CommentCount")
+                        .HasColumnType("int");
 
                     b.Property<bool>("CommentsEnabled")
                         .HasColumnType("bit");
@@ -380,12 +383,15 @@ namespace Echoes_v0._1.Migrations
                     b.Property<int>("FollowingCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("JoinDate")
+                    b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProfilePicture")
                         .IsRequired()

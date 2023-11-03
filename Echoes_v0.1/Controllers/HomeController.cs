@@ -1,11 +1,14 @@
-﻿using Echoes_v0._1.Data;
+﻿using Azure.Core.GeoJson;
+using Echoes_v0._1.Data;
 using Echoes_v0._1.Interfaces;
 using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -19,12 +22,16 @@ public class HomeController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    private static string? UserId;
-    private static string? PostId;
-    private static string? UserName;
-    private static string? UserProfilePicture;
-
-    private static ApplicationUser? foundUser; //global user
+    //TempData["AlertMessage"] = "Message";
+    /*
+     * @if (TempData["AlertMessage"] != null)
+        {
+            <div class="alert alert-dismissible alert-success sticky-top">
+                @TempData["StatusMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+     */
 
     public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
     {
@@ -36,40 +43,28 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        if (User != null)
-        {
-            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewBag.UserId = UserId;
+        //user specific
+        HttpContext.Session.SetString("UserId", User.FindFirstValue(ClaimTypes.NameIdentifier)); //stores UserID
+        ViewBag.UserId = HttpContext.Session.GetString("UserId"); //Gets UserID
 
-            if (dal.GetUser(UserId) != null)
-            {
-                UserName = dal.GetUser(UserId).Uname;
-                ViewBag.UserName = UserName; //Viewbag data
-            }
+        var id = HttpContext.Session.GetString("UserId");
+        if (dal.GetUser(id) != null)
+        {
+            HttpContext.Session.SetString("UserName", dal.GetUser(HttpContext.Session.GetString("UserId")).Uname);
+            ViewBag.UserName = HttpContext.Session.GetString("UserName");
         }
 
         //set up
-        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        foundUser = dal.GetUser(id);
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(id)));
 
         HomeModel homeModel = new HomeModel();
 
-        var posts = _context.PostModel.ToList();
-        var allComments = _context.CommentModel.ToList();
-        var allLikes = _context.LikeModel.ToList();
+        var posts = _context.PostModel.OrderBy(p => p.PostDate).ToList();
         homeModel.Posts = posts;
 
-        //populates Posts, comments, and Likes
-        //shows comments with corresonding posts, can do the same with profiles
-
-        foreach (PostModel model in posts)
+        foreach (PostModel post in posts)
         {
-            //readable time
-            model.TimeAgo = GetTimeSince(model.PostDate);
-            //comments
-            model.Comments = allComments.Where(c => c.PostId == model.PostId).ToList();
-            //likes
-            model.LikedBy = allLikes.Where(l => l.PostId == model.PostId).ToList();
+            PopulatePost(post);
         }
 
         return View(homeModel);
@@ -90,23 +85,21 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Profile()
     {
-        UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        ViewBag.UserId = UserId;
+        ViewBag.UserId = HttpContext.Session.GetString("UserId");
 
-        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (id == null) return NotFound();
+        // Deserialize the JSON string to the User model
+        string userJson = HttpContext.Session.GetString("UserData");
+        ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(userJson);
 
-        foundUser = dal.GetUser(id);
-        if (foundUser == null) return NotFound();
-
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(HttpContext.Session.GetString("UserId"))));
         return View("Profile/Profile", foundUser);
+
     }
 
-    //[HttpPost]
     public IActionResult ProfilePost(string? id)
     {
-        UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        ViewBag.UserId = UserId;
+        HttpContext.Session.SetString("UserId", User.FindFirstValue(ClaimTypes.NameIdentifier));
+        ViewBag.UserId = HttpContext.Session.GetString("UserId"); ;
 
         if (id == null) return NotFound();
 
@@ -128,18 +121,23 @@ public class HomeController : Controller
         if (id == null)
             return NotFound();
 
-        foundUser = dal.GetUser(id);
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(id)));
 
-        if (foundUser == null) return NotFound();
+        ViewBag.UserId = HttpContext.Session.GetString("UserId");
 
-        ViewBag.UserId = UserId;
+        // Deserialize the JSON string to the User model
+        string userJson = HttpContext.Session.GetString("UserData");
+        ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(userJson);
+
         return View("Profile/EditProfile", foundUser);
     }
 
     [HttpPost]
     public IActionResult EditProfile(ApplicationUser ap)
     {
-        if (ap.Id != null) foundUser = dal.GetUser(ap.Id);
+        // Deserialize the JSON string to the User model
+        string userJson = HttpContext.Session.GetString("UserData");
+        ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(userJson);
 
         if (ap.Uname != foundUser.Uname)
         {
@@ -147,6 +145,7 @@ public class HomeController : Controller
             if (!validName)
             {
                 ModelState.AddModelError("UserName", errorMessage: "Username is being used by another user!");
+                //Notification
             }
         }
 
@@ -167,7 +166,7 @@ public class HomeController : Controller
                     System.IO.File.Delete(filePath);
                 }
 
-                //update
+                //update pfp
                 ap.ProfilePicture = stringFileName;
                 foundUser.ProfilePicture = ap.ProfilePicture;
             }
@@ -175,7 +174,6 @@ public class HomeController : Controller
             //update posts and comments
             if (foundUser.Uname != ap.Uname || stringFileName != null)
             {
-
                 UpdateUserFootprint(new Guid(foundUser.Id), ap.Uname, foundUser.ProfilePicture);
             }
 
@@ -184,22 +182,24 @@ public class HomeController : Controller
             foundUser.DateOfBirth = ap.DateOfBirth;
             foundUser.Bio = ap.Bio;
             dal.EditUser(foundUser);
+
+            //set userData Json
+            HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(foundUser));
         }
 
-        return RedirectToAction("Profile", "Home");
+        return Profile();
     }
 
-    //follow
     public async Task<IActionResult> FollowUserAsync(Guid? userId)
     {
         //get users
         var userFollowing = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(userId.ToString()));
-        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(UserId));
-
+        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(HttpContext.Session.GetString("UserId")));
 
         if (userFollowing == null)
         {
-            return RedirectToAction("Index", "Home");
+            //notfication
+            return Index();
         }
         else
         {
@@ -207,7 +207,7 @@ public class HomeController : Controller
             UserFollowModel followModel = new UserFollowModel();
 
             followModel.Id = Guid.NewGuid();
-            followModel.CurrentUserId = new Guid(UserId);
+            followModel.CurrentUserId = new Guid(HttpContext.Session.GetString("UserId"));
             followModel.FollowingUserId = new Guid(userFollowing.Id);
 
             //gets all User's following
@@ -234,19 +234,19 @@ public class HomeController : Controller
     {
         //get user being unfollowed
         var userFollowing = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(userId.ToString()));
-        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(UserId));
+        var currentUser = _context.ApplicationUsers.FirstOrDefault(ap => ap.Id.Equals(HttpContext.Session.GetString("UserId")));
 
         if (userFollowing == null)
         {
             //redirect to profile viewing
             TempData["StatusMessage"] = "Profile cannot be unfollowed, Account may be deleted";
-            return RedirectToAction("Index", "Home");
+            return Index();
         }
         else
         {
             //gets all user's following
             userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
-            var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(UserId)));
+            var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(HttpContext.Session.GetString("UserId"))));
 
             currentUser.FollowersCount--;
 
@@ -256,6 +256,7 @@ public class HomeController : Controller
             await _context.SaveChangesAsync();
         }
 
+        TempData["StatusMessage"] = "Profile unfollowed";
         return ProfilePost(userFollowing.Id.ToString());
     }
 
@@ -264,17 +265,12 @@ public class HomeController : Controller
 
     #region Post Functions
 
-    public IActionResult CreatePost()
-    {
-        return View("Post/CreatePost");
-    }
-
     [HttpPost]
     public async Task<IActionResult> CreatePostAsync(PostModel post)
     {
         post.PostId = Guid.NewGuid();
-        post.UserId = new Guid(UserId);
-        post.PostDate = DateTime.Now;
+        //post.UserId = new Guid(HttpContext.Session.GetString("UserId"));
+        //post.UserName = String.Empty;
         if (!ModelState.IsValid || _context.PostModel == null || post == null || (String.IsNullOrEmpty(post.Caption) && String.IsNullOrEmpty(post.ImageUrl)))
         {
             TempData["StatusMessage"] = "Failed to create Post";
@@ -282,10 +278,18 @@ public class HomeController : Controller
         }
         else
         {
+            ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(HttpContext.Session.GetString("UserData"));
             //to set Username and PFP
-            post.UserName = UserName;
+            post.UserName = HttpContext.Session.GetString("UserName");
             post.ProfilePicture = foundUser.ProfilePicture;
             post.Caption = post.Caption.Trim();
+            post.Name = foundUser.Name;
+
+            //set location
+            //GeoPosition watcher = new GeoPosition();
+
+            //post.Latitude = watcher.Latitude;
+            //post.Longitude = watcher.Longitude;
 
             //Images
             string stringFileName = UploadFile(post);
@@ -306,20 +310,23 @@ public class HomeController : Controller
     //display post
     public IActionResult Post(Guid postId)
     {
-        ViewBag.UserId = UserId;
-        //static post string
-        PostId = postId.ToString();
-        ViewBag.PostID = PostId; //viewbag data
+        if (postId != null)
+        {
+            //static post string
+            HttpContext.Session.SetString("PostId", postId.ToString());
+            ViewBag.PostID = HttpContext.Session.GetString("PostId"); //viewbag data
+        }
+        ViewBag.UserId = HttpContext.Session.GetString("UserId");
         PostViewModel postViewModel = new PostViewModel
         {
-            Post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId))
+            Post = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(postId)),
+            Comment = new CommentModel()
         };
         if (postViewModel.Post != null)
         {
             PopulatePost(postViewModel.Post);
             return View("Post/_PostView", postViewModel);
         }
-
         else
         {
             TempData["StatusMessage"] = "Post not found";
@@ -331,13 +338,12 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult EditPost(Guid? id)
     {
-        if (id == null)
-            return NotFound();
-
         PostModel foundPost = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(id));
 
-        if (foundPost == null) return NotFound();
-        //notification
+        if (foundPost == null) { 
+            TempData["StatusMessage"] = "Post not found";
+            return RedirectToAction("Index", "Home");
+        }
 
         return View("Post/EditPost", foundPost);
     }
@@ -362,8 +368,10 @@ public class HomeController : Controller
             await _context.SaveChangesAsync();
 
             TempData["StatusMessage"] = "Post successfully updated";
+            //go back to where they were
             return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
         }
+        TempData["StatusMessage"] = "Post failed to update";
         return View("Post/EditPost", postModel);
     }
 
@@ -391,11 +399,10 @@ public class HomeController : Controller
                 _context.LikeModel.Remove(like);
             }
 
-            //dal.RemovePost(id);
             _ = _context.PostModel.Remove(post);
             await _context.SaveChangesAsync();
 
-            //delete Images
+            //delete Image
             string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images");
             filePath += "\\" + post.ImageUrl;
             if (System.IO.File.Exists(filePath))
@@ -408,6 +415,7 @@ public class HomeController : Controller
         {
             return View();
         }
+        //Notification
         return RedirectToAction("Index", "Home");
     }
 
@@ -419,6 +427,7 @@ public class HomeController : Controller
 
         if (post == null)
         {
+            //notification
             return RedirectToAction("Index", "Home");
         }
         else
@@ -427,7 +436,7 @@ public class HomeController : Controller
             var LikeModel = new LikeModel();
 
             LikeModel.Id = Guid.NewGuid();
-            LikeModel.UserId = new Guid(UserId);
+            LikeModel.UserId = new Guid(HttpContext.Session.GetString("UserId"));
             LikeModel.PostId = post.PostId;
 
             //gets all post's likes
@@ -442,6 +451,8 @@ public class HomeController : Controller
             await _context.SaveChangesAsync();
         }
 
+        //notification
+        //load page user was last on
         return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
     }
 
@@ -458,7 +469,7 @@ public class HomeController : Controller
         {
             //gets all post's likes
             post.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postId)).ToList();
-            var like = post.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(UserId)));
+            var like = post.LikedBy.FirstOrDefault(l => l.UserId.Equals(new Guid(HttpContext.Session.GetString("UserId"))));
 
             //update Post
             _context.LikeModel.Remove(like);
@@ -478,8 +489,9 @@ public class HomeController : Controller
     {
         if (PostID != null)
         {
-            ViewBag.PostID = PostID; //viewbag data
-            PostId = PostID; // static string
+            HttpContext.Session.SetString("PostId", PostID);
+            ViewBag.PostID = HttpContext.Session.GetString("PostId");
+
             return View("Comment/CreateComment");
         }
         else
@@ -494,26 +506,27 @@ public class HomeController : Controller
     {
         if (PostID != null)
         {
-            ViewBag.PostID = PostID; //viewbag data
-            PostId = PostID; // static string
+            HttpContext.Session.SetString("PostId", PostID);
+            ViewBag.PostID = HttpContext.Session.GetString("PostId");
         }
         comment.CommentId = Guid.NewGuid();
-        comment.PostId = new Guid(PostId);
-        comment.UserId = new Guid(UserId);
+        comment.PostId = new Guid(HttpContext.Session.GetString("PostId"));
+        comment.UserId = new Guid(HttpContext.Session.GetString("UserId"));
 
-        //to set Username and PFP
-        comment.Username = UserName;
-        //comment.ProfilePicture = foundUser.ProfilePictureUrl;
+        //to set Username
+        comment.Username = HttpContext.Session.GetString("UserName");
 
-        if (comment.Message.Length < 1 || _context == null || comment == null)
+        if (comment.Message.Length < 1 || _context == null)
         {
             return Post(comment.PostId);
         }
 
         _context.CommentModel.Add(comment);
         await _context.SaveChangesAsync();
+        Guid TempPostId = comment.PostId;
+        comment = new CommentModel();
 
-        return Post(comment.PostId);
+        return Post(TempPostId);
     }
 
     [HttpGet]
@@ -553,8 +566,7 @@ public class HomeController : Controller
         }
         else
         {
-            //comment.PostId = Guid.Empty;
-            _context.CommentModel.Remove(comment); //dal method?
+            _context.CommentModel.Remove(comment);
             await _context.SaveChangesAsync();
         }
 
@@ -567,11 +579,10 @@ public class HomeController : Controller
         {
             //validator
             ModelState.AddModelError("CommentId", "Cannot find comment to delete");
-            return Post(new Guid(PostId));
+            return Post(new Guid(HttpContext.Session.GetString("PostId")));
         }
         else
         {
-            //comment.PostId = Guid.Empty;
             _context.CommentModel.Remove(foundComment);
             await _context.SaveChangesAsync();
         }
@@ -586,20 +597,19 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Search()
     {
-        ViewBag.UserId = UserId;
+        ViewBag.UserId = HttpContext.Session.GetString("UserId");
         TempData["key"] = "";
 
         SearchViewModel searchModel = new SearchViewModel();
-        searchModel.Users = _context.ApplicationUsers.ToList();
-        searchModel.Posts = _context.PostModel.ToList();
+        searchModel.Users = _context.ApplicationUsers.OrderBy(a => a.Uname).ToList();
+        searchModel.Posts = _context.PostModel.OrderBy(p => p.PostDate).ToList();
         return View("Search/UserSearch", searchModel);
     }
 
     [HttpPost]
     public IActionResult Search(string key)
     {
-        ViewBag.UserId = UserId;
-
+        ViewBag.UserId = HttpContext.Session.GetString("UserId");
 
         SearchViewModel searchModel = new SearchViewModel();
         searchModel.Users = _context.ApplicationUsers.ToList();
@@ -690,8 +700,19 @@ public class HomeController : Controller
     {
         postModel.TimeAgo = GetTimeSince(postModel.PostDate);
 
-        postModel.Comments = _context.CommentModel.ToList();
-        postModel.LikedBy = _context.LikeModel.ToList();
+        postModel.Comments = _context.CommentModel.Where(c => c.PostId.Equals(postModel.PostId)).ToList();
+
+        foreach (var commentModel in postModel.Comments)
+        {
+            commentModel.TimeAgo = GetTimeSince(commentModel.PostDate);
+        }
+        //comment counf
+        if (postModel.Comments != null)
+        {
+            postModel.CommentCount = postModel.Comments.Count;
+        }
+
+        postModel.LikedBy = _context.LikeModel.Where(l => l.PostId.Equals(postModel.PostId)).ToList();
     }
 
     //Update Posts and Comments pfp/Username when Profile is edited

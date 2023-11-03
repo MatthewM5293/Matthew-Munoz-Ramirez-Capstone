@@ -8,11 +8,17 @@
         <partial name="_PostPartial.cshtml" for="Post" />
         @*Comments*@
         <div>
-            <partial name="~/Views/Home/Comment/CreateComment.cshtml" for="Comment" style="position:fixed" />
-            @foreach (CommentModel commentModel in Model.Post.Comments)
-            {
-                <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@commentModel" />
+            @if (Model.Post.CommentsEnabled)
+            {                
+                <partial name="~/Views/Home/Comment/CreateComment.cshtml" for="Comment" style="position:fixed; height:fit-content;" />
+                @foreach (CommentModel commentModel in Model.Post.Comments)
+                {
+                    <partial name="~/Views/Home/Comment/_CommentPartialView.cshtml" for="@commentModel" />
+                }
+            } else {
+                <span class="disabled">Comments disabled by User</span>
             }
+
         </div>
     </div>
 

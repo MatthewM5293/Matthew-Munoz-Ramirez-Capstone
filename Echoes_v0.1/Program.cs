@@ -43,6 +43,10 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddControllersWithViews();
 
+//session data
+builder.Services.AddDistributedMemoryCache(); // This is for in-memory session storage
+builder.Services.AddSession();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -64,6 +68,9 @@ app.UseRouting();
 
 app.UseAuthentication(); //?
 app.UseAuthorization();
+
+//session data
+app.UseSession();
 
 app.MapAreaControllerRoute(
     name: "PostArea",

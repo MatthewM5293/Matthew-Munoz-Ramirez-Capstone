@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using Echoes_v0._1.Data;
 using Echoes_v0._1.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -24,12 +26,14 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
+            ApplicationDbContext context,
             IEmailSender emailSender//,
             //RoleManager<IdentityRole> roleManager
             )
@@ -40,6 +44,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
             //_roleManager = roleManager;
         }
 
@@ -127,6 +132,7 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (IsUserNameInUse(Input.Username)) ModelState.AddModelError("Username", "Username is already in Use");
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -201,5 +207,13 @@ namespace Echoes_v0._1.Areas.Identity.Pages.Account
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
+
+        public bool IsUserNameInUse(string userName)
+        {
+            // Check if the username already exists in the database
+            return _context.ApplicationUsers.Any(u => u.Uname == userName);
+        }
+
+
     }
 }

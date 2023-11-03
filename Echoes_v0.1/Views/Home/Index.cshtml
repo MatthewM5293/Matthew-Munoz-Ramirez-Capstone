@@ -38,33 +38,20 @@ else
     </div>
 
     <div class="container-fluid">
-        @if (TempData["StatusMessage"] != null)
+        @if (TempData["AlertMessage"] != null)
         {
             <div class="alert alert-dismissible alert-success sticky-top">
-                @TempData["StatusMessage"]
+                @TempData["AlertMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
-        <div id="myDiv" class="mx-auto">
+        <div class="mx-auto">
             @foreach (PostModel pm in Model.Posts)
             {
-                <div class="d-flex flex-wrap">
+                <div>
                     <partial name="Post/_PostPartial.cshtml" for="@pm">
                 </div>
             }
         </div>
     </div>
-
-    <script>
-        var myVar;
-
-        function myFunction() {
-            myVar = setTimeout(showPage, 3000);
-        }
-
-        function showPage() {
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("myDiv").style.display = "block";
-        }
-    </script>
 }  

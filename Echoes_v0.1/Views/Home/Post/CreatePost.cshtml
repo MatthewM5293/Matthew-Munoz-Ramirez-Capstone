@@ -3,6 +3,9 @@
 <form asp-controller="Home" asp-action="CreatePost" method="post" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <input type="hidden" id="formFile" asp-for="UserId" value="@(new Guid(ViewBag.UserId))">
+    <input type="hidden" id="formFile" asp-for="UserName" value="@(String.Empty)">
+    <input type="hidden" id="formFile" asp-for="Name" value="@(String.Empty)">
     <div class="form-group">
         <label asp-for="@Model.Caption" class="control-label" style="margin-bottom:2%"></label>
         <textarea asp-for="@Model.Caption" id="the-textarea" class="bg-transparent input-group mx-lg-auto" placeholder="Type here!" rows="4" cols="50" maxlength="2000" style="color:white;" autofocus></textarea>

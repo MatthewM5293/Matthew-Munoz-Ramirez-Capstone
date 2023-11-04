@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Linq;
 using System.Security.Claims;
 
 namespace Echoes_v0._1.Controllers;
@@ -18,7 +19,7 @@ namespace Echoes_v0._1.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IDataAccessLayer dal;
+    private readonly IDataAccessLayer _dal;
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -27,16 +28,16 @@ public class HomeController : Controller
      * @if (TempData["AlertMessage"] != null)
         {
             <div class="alert alert-dismissible alert-success sticky-top">
-                @TempData["StatusMessage"]
+                @TempData["AlertMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
      */
 
-    public HomeController(ILogger<HomeController> logger, IDataAccessLayer indal, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+    public HomeController(ILogger<HomeController> logger, IDataAccessLayer dal, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
     {
         _logger = logger;
-        dal = indal;
+        _dal = dal;
         _context = context;
         _webHostEnvironment = webHostEnvironment;
     }
@@ -48,24 +49,31 @@ public class HomeController : Controller
         ViewBag.UserId = HttpContext.Session.GetString("UserId"); //Gets UserID
 
         var id = HttpContext.Session.GetString("UserId");
-        if (dal.GetUser(id) != null)
+        if (_dal.GetUser(id) != null)
         {
-            HttpContext.Session.SetString("UserName", dal.GetUser(HttpContext.Session.GetString("UserId")).Uname);
+            HttpContext.Session.SetString("UserName", _dal.GetUser(HttpContext.Session.GetString("UserId")).Uname);
             ViewBag.UserName = HttpContext.Session.GetString("UserName");
         }
 
+        //for when TABS are set up of "posts near you"
+        //GeoPosition geoPosition = new GeoPosition();
+
         //set up
-        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(id)));
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(_dal.GetUser(id)));
 
         HomeModel homeModel = new HomeModel();
 
-        var posts = _context.PostModel.OrderBy(p => p.PostDate).ToList();
+        var posts = _context.PostModel.OrderByDescending(p => p.PostDate).ToList();
+        var follows = _context.UserFollowModels.Where(fm => fm.CurrentUserId.Equals(new Guid(id))).ToList();
+
         homeModel.Posts = posts;
 
         foreach (PostModel post in posts)
         {
             PopulatePost(post);
         }
+        // Filter the posts for the users the current user follows
+        homeModel.FollowedPosts = posts.Where(p => follows.Select(fm => fm.FollowingUserId).Contains(p.UserId)).ToList();
 
         return View(homeModel);
     }
@@ -91,7 +99,7 @@ public class HomeController : Controller
         string userJson = HttpContext.Session.GetString("UserData");
         ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(userJson);
 
-        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(HttpContext.Session.GetString("UserId"))));
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(_dal.GetUser(HttpContext.Session.GetString("UserId"))));
         return View("Profile/Profile", foundUser);
 
     }
@@ -103,7 +111,7 @@ public class HomeController : Controller
 
         if (id == null) return NotFound();
 
-        ApplicationUser userFound = dal.GetUser(id);
+        ApplicationUser userFound = _dal.GetUser(id);
         if (userFound == null) return NotFound();
 
         //populate Followers
@@ -121,7 +129,7 @@ public class HomeController : Controller
         if (id == null)
             return NotFound();
 
-        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(dal.GetUser(id)));
+        HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(_dal.GetUser(id)));
 
         ViewBag.UserId = HttpContext.Session.GetString("UserId");
 
@@ -141,7 +149,7 @@ public class HomeController : Controller
 
         if (ap.Uname != foundUser.Uname)
         {
-            bool validName = dal.IsValidUserName(ap.Uname);
+            bool validName = _dal.IsValidUserName(ap.Uname);
             if (!validName)
             {
                 ModelState.AddModelError("UserName", errorMessage: "Username is being used by another user!");
@@ -181,12 +189,12 @@ public class HomeController : Controller
             foundUser.Name = ap.Name;
             foundUser.DateOfBirth = ap.DateOfBirth;
             foundUser.Bio = ap.Bio;
-            dal.EditUser(foundUser);
+            _dal.EditUser(foundUser);
 
             //set userData Json
             HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(foundUser));
         }
-
+        TempData["AlertMessage"] = "Profile Updated Successfully";
         return Profile();
     }
 
@@ -199,6 +207,7 @@ public class HomeController : Controller
         if (userFollowing == null)
         {
             //notfication
+            TempData["AlertMessage"] = "Account not found";
             return Index();
         }
         else
@@ -218,10 +227,12 @@ public class HomeController : Controller
             userFollowing.FollowersCount = userFollowing.Followers.Count();
 
             //update current User's following count
-            currentUser.FollowersCount++;
+            currentUser.FollowingCount++;
 
             //update db
             _context.UserFollowModels.Add(followModel);
+            _context.ApplicationUsers.Update(currentUser);
+            _context.ApplicationUsers.Update(userFollowing);
             await _context.SaveChangesAsync();
         }
 
@@ -239,7 +250,7 @@ public class HomeController : Controller
         if (userFollowing == null)
         {
             //redirect to profile viewing
-            TempData["StatusMessage"] = "Profile cannot be unfollowed, Account may be deleted";
+            TempData["AlertMessage"] = "Profile cannot be unfollowed, Account may be deleted";
             return Index();
         }
         else
@@ -248,15 +259,17 @@ public class HomeController : Controller
             userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
             var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(HttpContext.Session.GetString("UserId"))));
 
-            currentUser.FollowersCount--;
+            currentUser.FollowingCount--;
 
             //update db
             _context.UserFollowModels.Remove(followModel);
+            _context.ApplicationUsers.Update(currentUser);
+            _context.ApplicationUsers.Update(userFollowing);
             userFollowing.FollowersCount = userFollowing.Followers.Count();
             await _context.SaveChangesAsync();
         }
 
-        TempData["StatusMessage"] = "Profile unfollowed";
+        TempData["AlertMessage"] = "Profile unfollowed";
         return ProfilePost(userFollowing.Id.ToString());
     }
 
@@ -273,7 +286,7 @@ public class HomeController : Controller
         //post.UserName = String.Empty;
         if (!ModelState.IsValid || _context.PostModel == null || post == null || (String.IsNullOrEmpty(post.Caption) && String.IsNullOrEmpty(post.ImageUrl)))
         {
-            TempData["StatusMessage"] = "Failed to create Post";
+            TempData["AlertMessage"] = "Failed to create Post";
             return RedirectToAction("Index", "Home");
         }
         else
@@ -286,10 +299,10 @@ public class HomeController : Controller
             post.Name = foundUser.Name;
 
             //set location
-            //GeoPosition watcher = new GeoPosition();
+            GeoPosition geoPosition = new GeoPosition();
 
-            //post.Latitude = watcher.Latitude;
-            //post.Longitude = watcher.Longitude;
+            post.Latitude = geoPosition.Latitude;
+            post.Longitude = geoPosition.Longitude;
 
             //Images
             string stringFileName = UploadFile(post);
@@ -302,7 +315,7 @@ public class HomeController : Controller
             await _context.SaveChangesAsync();
 
 
-            TempData["StatusMessage"] = "Post successfully created";
+            TempData["AlertMessage"] = "Post successfully created";
             return RedirectToAction("Index", "Home", fragment: post.PostId.ToString());
         }
     }
@@ -329,7 +342,7 @@ public class HomeController : Controller
         }
         else
         {
-            TempData["StatusMessage"] = "Post not found";
+            TempData["AlertMessage"] = "Post not found";
             return RedirectToAction("Index", "Home");
         }
 
@@ -341,7 +354,7 @@ public class HomeController : Controller
         PostModel foundPost = _context.PostModel.FirstOrDefault(p => p.PostId.Equals(id));
 
         if (foundPost == null) { 
-            TempData["StatusMessage"] = "Post not found";
+            TempData["AlertMessage"] = "Post not found";
             return RedirectToAction("Index", "Home");
         }
 
@@ -359,7 +372,7 @@ public class HomeController : Controller
             {
                 postModel.EditDate = null;
 
-                TempData["StatusMessage"] = "Nothing to be updated";
+                TempData["AlertMessage"] = "Nothing to be updated";
                 return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
             }
             foundPost.Caption = postModel.Caption;
@@ -367,11 +380,11 @@ public class HomeController : Controller
             _context.PostModel.Update(foundPost);
             await _context.SaveChangesAsync();
 
-            TempData["StatusMessage"] = "Post successfully updated";
+            TempData["AlertMessage"] = "Post successfully updated";
             //go back to where they were
             return RedirectToAction("Index", "Home", fragment: postModel.PostId.ToString());
         }
-        TempData["StatusMessage"] = "Post failed to update";
+        TempData["AlertMessage"] = "Post failed to update";
         return View("Post/EditPost", postModel);
     }
 
@@ -602,7 +615,11 @@ public class HomeController : Controller
 
         SearchViewModel searchModel = new SearchViewModel();
         searchModel.Users = _context.ApplicationUsers.OrderBy(a => a.Uname).ToList();
-        searchModel.Posts = _context.PostModel.OrderBy(p => p.PostDate).ToList();
+        searchModel.Posts = _context.PostModel.OrderByDescending(p => p.PostDate).ToList();
+        foreach (PostModel post in searchModel.Posts)
+        {
+            PopulatePost(post);
+        }
         return View("Search/UserSearch", searchModel);
     }
 
@@ -614,6 +631,10 @@ public class HomeController : Controller
         SearchViewModel searchModel = new SearchViewModel();
         searchModel.Users = _context.ApplicationUsers.ToList();
         searchModel.Posts = _context.PostModel.ToList();
+        foreach (PostModel post in searchModel.Posts)
+        {
+            PopulatePost(post);
+        }
         if (String.IsNullOrEmpty(key))
         {
             return View("Search/UserSearch", searchModel);
@@ -624,6 +645,7 @@ public class HomeController : Controller
         //filters
         searchModel.Users = searchModel.Users.Where(c => c.Uname.ToLower().Contains(key.ToLower())).ToList();
         searchModel.Posts = searchModel.Posts.Where(p => p.Caption.ToLower().Contains(key.ToLower())).ToList();
+
 
         //returns searched
         return View("Search/UserSearch", searchModel);
@@ -700,13 +722,13 @@ public class HomeController : Controller
     {
         postModel.TimeAgo = GetTimeSince(postModel.PostDate);
 
-        postModel.Comments = _context.CommentModel.Where(c => c.PostId.Equals(postModel.PostId)).ToList();
+        postModel.Comments = _context.CommentModel.Where(c => c.PostId.Equals(postModel.PostId)).OrderByDescending(c => c.PostDate).ToList();
 
         foreach (var commentModel in postModel.Comments)
         {
             commentModel.TimeAgo = GetTimeSince(commentModel.PostDate);
         }
-        //comment counf
+        //comment count
         if (postModel.Comments != null)
         {
             postModel.CommentCount = postModel.Comments.Count;
@@ -734,7 +756,7 @@ public class HomeController : Controller
             _context.CommentModel.Update(comment);
         }
 
-        TempData["StatusMessage"] = "Profile Successfully updated";
+        TempData["AlertMessage"] = "Profile Successfully updated";
     }
 
     //From: https://www.thatsoftwaredude.com/content/1019/how-to-calculate-time-ago-in-c

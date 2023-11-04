@@ -1,23 +1,23 @@
 ﻿@model SearchViewModel
 
 <div>
-    <form method="post" asp-controller="Home" asp-action="Search" class="input-group mb-3">
-        <input name="key" class="form-control me-sm-2" type="search" placeholder="Search" value="@TempData["Key"]" />
-        <button class="btn btn-secondary my-sm-2 my-sm-0" type="submit"> <i class="bi bi-search"></i> search </button>
-    </form>
-</div>
-
-@if (Model == null)
-{
-    <h1>No Users Exist, what are you doing here?</h1>
-}
-else if (Model.Users.Count() == 0 && Model.Posts.Count() == 0)
-{
-    <h1>The term you're looking for does not exists...</h1>
-}
-else
-{
     <div>
+        <form method="post" asp-controller="Home" asp-action="Search" class="input-group mb-3">
+            <input name="key" class="form-control me-sm-2" type="search" placeholder="Search" value="@TempData["Key"]" />
+            <button class="btn btn-secondary my-sm-2 my-sm-0" type="submit"> <i class="bi bi-search"></i> search </button>
+        </form>
+    </div>
+
+    @if (Model == null)
+    {
+        <h1>No Users Exist, what are you doing here?</h1>
+    }
+    else if (Model.Users.Count() == 0 && Model.Posts.Count() == 0)
+    {
+        <h1>The term you're looking for does not exists...</h1>
+    }
+    else
+    {
         <div class="mx-auto">
             @if (Model.Users.Count() > 0)
             {
@@ -34,7 +34,7 @@ else
                 {
                     <div class="" style="max-width: 100%; height:auto; margin-bottom: 1%;">
                         <div class="card-body">
-                            <partial name="~/Views/Home/Profile/UserProfileView.cshtml" for="@au" class="card-text" />
+                            <partial name="~/Views/Home/Profile/_UserSearchProfileView.cshtml" for="@au" class="card-text" />
                         </div>
                     </div>
 
@@ -62,5 +62,5 @@ else
                 }
             }
         </div>
-    </div>
-}
+    }
+</div>

@@ -57,11 +57,11 @@ public class PostModel
     public List<CommentModel>? Comments { get; set; } //Comments filtered by ID 
     public List<LikeModel>? LikedBy { get; set; }
 
-    //public double Longitude { get; set; }
-    //public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public double Latitude { get; set; }
 
-    //[NotMapped]
-    //public bool IsNear { get; set; }
+    [NotMapped]
+    public bool IsNear { get; set; }
     
     [NotMapped]
     public string? TimeAgo { get; set; }
@@ -71,19 +71,19 @@ public class PostModel
     {
     }
 
-    //Post location
-    //public static bool IsNearToUsER(double location1Lat, double location1Long, double location2Lat, double location2Long, double thresholdKilometers)
-    //{
-    //    // Haversine formula to calculate distance
-    //    const double EarthRadiusKilometers = 6371.0;
-    //    double dLat = Math.PI / 180 * (location2Long - location1Lat);
-    //    double dLon = Math.PI / 180 * (location2Long - location1Long);
-    //    double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-    //               Math.Cos(Math.PI / 180 * location1Lat) * Math.Cos(Math.PI / 180 * location2Lat) *
-    //               Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-    //    double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-    //    double distance = EarthRadiusKilometers * c;
+    //Post location check
+    public static bool IsNearToUsER(double location1Lat, double location1Long, double location2Lat, double location2Long, double thresholdKilometers)
+    {
+        // Haversine formula to calculate distance
+        const double EarthRadiusKilometers = 6371.0;
+        double dLat = Math.PI / 180 * (location2Long - location1Lat);
+        double dLon = Math.PI / 180 * (location2Long - location1Long);
+        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                   Math.Cos(Math.PI / 180 * location1Lat) * Math.Cos(Math.PI / 180 * location2Lat) *
+                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        double distance = EarthRadiusKilometers * c;
 
-    //    return distance <= thresholdKilometers;
-    //}
+        return distance <= thresholdKilometers;
+    }
 }

@@ -13,7 +13,7 @@
                 </div>
                 <div class="col-sm-auto" style="">
                     <p style="margin-left:5%; width:fit-content">
-                        Name
+                        @Model.Name
                     </p>
                 </div>
                 <div class="col-sm-auto">
@@ -31,11 +31,8 @@
                     </p>
                 </div>
                 <div class="col-sm-auto">
-                    <p>
-                        Location
-                    </p>
                 </div>
-                <div class="col-sm-auto" style="margin-left:20%; margin-right:auto">
+                <div class="col-sm-auto" style="margin-left:1%; margin-right:auto">
                     @if (ViewBag.UserId == Model.UserId.ToString())
                     {
                         <div class="btn dropdown" style="width:auto;">
@@ -120,11 +117,14 @@
                     <div class="card-body">
                         @if (Model.CommentsEnabled)
                         {
-                            @*<a asp-controller="Home" asp-action="AddComment" asp-route-PostID="@Model.PostId.ToString()" class="btn">
-                    <i class="bi bi-chat-left"></i> @Model.CommentCount Comments
-                    </a>*@
                             <a asp-controller="Home" asp-action="Post" asp-route-PostID="@Model.PostId" class="btn">
                                 <i class="bi bi-chat-left"></i> @Model.CommentCount Comments
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Home" asp-action="Post" asp-route-PostID="@Model.PostId" class="btn">
+                                Comments disabled
                             </a>
                         }
                     </div>

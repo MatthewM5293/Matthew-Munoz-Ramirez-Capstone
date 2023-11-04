@@ -2,7 +2,9 @@
 @{
     ViewData["Title"] = "Home";
 }
-<h1 class="bg-gradient align-content-md-start" style="width:stretch;">@ViewData["Title"]</h1>
+<div class="bg-gradient align-content-md-start">
+    <h1 style="margin-left:1%; width:stretch;">@ViewData["Title"]</h1>
+</div>
 <hr />
 @if (Model == null)
 {
@@ -10,6 +12,12 @@
         <div class="ldio-8kdhkbds30a">
             <div></div><div><div></div></div>
         </div>
+    </div>
+}
+else if (Model.Posts.Count == 0)
+{
+    <div>
+        <h1>No Posts have been made today :(</h1>
     </div>
 }
 else
@@ -45,13 +53,52 @@ else
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
+
+        <!-- TABS -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" data-bs-toggle="tab" href="#home" aria-selected="true" role="tab">Home</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" href="#following" aria-selected="false" role="tab" tabindex="-1">Following</a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active show" id="home" role="tabpanel">
+                @foreach (PostModel pm in Model.Posts)
+                {
+                    <div>
+                        <partial name="Post/_PostPartial.cshtml" for="@pm">
+                    </div>
+                }
+            </div>
+            <div class="tab-pane fade" id="following" role="tabpanel">
+                @{
+                    if (Model.FollowedPosts.Count > 0)
+                    {
+                        foreach (PostModel pm in Model.FollowedPosts)
+                        {
+                            <div>
+                                    <partial name="Post/_PostPartial.cshtml" for="@pm">
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="">No Posts to show 📎</p>
+                    }
+                }
+            </div>
+        </div>
+
+
         <div class="mx-auto">
-            @foreach (PostModel pm in Model.Posts)
+            @*@foreach (PostModel pm in Model.Posts)
             {
                 <div>
                     <partial name="Post/_PostPartial.cshtml" for="@pm">
                 </div>
-            }
+            }*@
         </div>
     </div>
 }  

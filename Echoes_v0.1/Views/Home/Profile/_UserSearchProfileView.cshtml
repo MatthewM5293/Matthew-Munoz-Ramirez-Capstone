@@ -1,0 +1,49 @@
+﻿@model ApplicationUser
+
+@if (Model == null)
+{
+}
+else
+{
+    <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id">
+        <div class="container nav-pills" style="margin-bottom:1%; margin-top:1%; width:60%;">
+            <div class="card" id="@Model.Id" style="border:dashed; border-color:#4e6151ff">
+
+                <div class="row" style="margin-left:0%; margin-top:1%;">
+                    <div class="col-sm-1" style="margin-right:2%;">
+                        <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id">
+                            <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" style="min-height:100%; min-width:100%; height:100%; width:175%;" />
+                        </a>
+                    </div>
+                    <div class="col-sm-auto" style="">
+                        <p style="margin-left:5%; width:max-content">
+                            @Model.Name
+                        </p>
+                        <p style="margin-left:5%; width:max-content; margin-top:-30%">
+                            <strong>
+                                <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id">
+                                    @@@Model.Uname
+                                </a>
+                            </strong>
+                        </p>
+                    </div>
+                    <div class="col-sm-auto">
+                        <p>
+                            @Model.FollowersCount Followers
+                        </p>
+                    </div>
+                    <div class="col-xl" style="margin-left:45%;">
+                        
+                    </div>
+                </div>
+                <div class="row" style="margin-left:0%; margin-top:1%;">
+                    <div class="col-sm-1">
+                        <span></span>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+    </a>
+}

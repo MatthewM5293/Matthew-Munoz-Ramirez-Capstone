@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Security.Claims;
 
@@ -22,9 +24,10 @@ public class HomeController : Controller
     private readonly IDataAccessLayer _dal;
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    //private IFirebaseClient _client;
 
-    //TempData["AlertMessage"] = "Message";
-    /*
+    /* Alerts
+    *TempData["AlertMessage"] = "Message";
      * @if (TempData["AlertMessage"] != null)
         {
             <div class="alert alert-dismissible alert-success sticky-top">
@@ -311,6 +314,7 @@ public class HomeController : Controller
                 post.ImageUrl = stringFileName;
             }
 
+            AddPostToFireBase(post);
             _context.PostModel.Add(post);
             await _context.SaveChangesAsync();
 
@@ -799,6 +803,18 @@ public class HomeController : Controller
     }
 
 
+
+
+    #endregion
+    #region FireBase Methods
+    private void AddPostToFireBase(PostModel post) 
+    {
+        //_client = new FireSharp.FirebaseClient(config);
+        //var data = post;
+        //PushResponse response = _client.Push("Posts/", data);
+        //data.PostId = new Guid(response.Result.name);
+        //SetResponse setResponse = _client.Set("Posts/"+data.PostId, data);
+    }
     #endregion
 
 }

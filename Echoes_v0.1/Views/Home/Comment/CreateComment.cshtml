@@ -12,9 +12,11 @@
 
     <div class="form-group">
         <label asp-for="Message" class="control-label" style="margin-bottom:2%"></label>
-        <textarea asp-for="Message" id="the-textarea" class="bg-transparent input-group mx-lg-auto" placeholder="Add a comment..." rows="2" cols="50" maxlength="2000" style="white-space:pre-line; color:white; height:fit-content;"></textarea>
-        <span id="current">0</span>
-        <span id="maximum">/ 2000</span>
+        <textarea asp-for="Message" id="message-text" class="bg-transparent input-group mx-lg-auto" placeholder="Add a comment..." rows="2" cols="50" maxlength="2000" style="white-space:pre-line; color:white; height:fit-content;"> </textarea>
+       <div id="the-count" style="align-content:end;">
+            <span id="current">0</span>
+            <span id="maximum">/ 2000</span>
+       </div>
     </div>
     
     <button type="submit" class="btn btn-primary">
@@ -22,6 +24,20 @@
     </button>
 </form>
 
+<script>
+    window.onload = () => {
+        document.getElementById("message-text").value = "";
+    }
+
+    jQuery("message-text").keyup(function () {
+        var characterCount = jQuery(this).val().length,
+            current = jQuery('#current'),
+            maximum = jQuery('#maximum'),
+            theCount = jQuery('#the-count');
+
+        current.text(characterCount);
+    });
+</script>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

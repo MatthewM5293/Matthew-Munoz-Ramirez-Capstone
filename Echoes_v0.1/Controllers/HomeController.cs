@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -101,6 +102,7 @@ public class HomeController : Controller
         // Deserialize the JSON string to the User model
         string userJson = HttpContext.Session.GetString("UserData");
         ApplicationUser foundUser = JsonConvert.DeserializeObject<ApplicationUser>(userJson);
+        foundUser.Posts = _context.PostModel.Where(p => p.UserId.ToString().Equals(foundUser.Id)).ToList();
 
         HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(_dal.GetUser(HttpContext.Session.GetString("UserId"))));
         return View("Profile/Profile", foundUser);
@@ -121,6 +123,8 @@ public class HomeController : Controller
         var allFollowers = _context.UserFollowModels.ToList();
         userFound.Followers = allFollowers.Where(fm => fm.FollowingUserId.ToString().Equals(id)).ToList();
         userFound.Following = allFollowers.Where(fm => fm.CurrentUserId.ToString().Equals(id)).ToList();
+        //populate posts
+        userFound.Posts = _context.PostModel.Where(p => p.UserId.ToString().Equals(userFound.Id)).ToList();
 
         return View("Profile/Profile", userFound);
     }
@@ -521,22 +525,23 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> AddCommentAsync(string PostID, CommentModel comment)
     {
+        comment.PostId = new Guid(HttpContext.Session.GetString("PostId"));
         if (PostID != null)
         {
             HttpContext.Session.SetString("PostId", PostID);
             ViewBag.PostID = HttpContext.Session.GetString("PostId");
         }
+        if (comment.Message.IsNullOrEmpty() || comment.Message.Length < 1 || _context == null)
+        {
+            return Post(comment.PostId);
+        }
+
         comment.CommentId = Guid.NewGuid();
-        comment.PostId = new Guid(HttpContext.Session.GetString("PostId"));
+        //comment.PostId = new Guid(HttpContext.Session.GetString("PostId"));
         comment.UserId = new Guid(HttpContext.Session.GetString("UserId"));
 
         //to set Username
         comment.Username = HttpContext.Session.GetString("UserName");
-
-        if (comment.Message.Length < 1 || _context == null)
-        {
-            return Post(comment.PostId);
-        }
 
         _context.CommentModel.Add(comment);
         await _context.SaveChangesAsync();
@@ -693,14 +698,19 @@ public class HomeController : Controller
             {
                 Directory.CreateDirectory(Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures"));
             }
-
+            // Safety check to ensure directory was created in the right location.
             if (Directory.Exists("/wwwroot/ProfilePictures"))
             {
+                //set upload dir (wwwroot/ProfilePictures) is what it is basically
                 string uploadDirectory = Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures");
+                //naming the file with a GUID to prevent potential overwritting
                 filename = Guid.NewGuid().ToString() + "-" + applicationUser.Image.FileName;
+                //path to the image (basically the image URL)
                 string filePath = Path.Combine(uploadDirectory, filename);
+                //Save image to project
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
+                    //Image is an IFormFile datatype called Image in the applicationUser model
                     applicationUser.Image.CopyTo(fileStream);
                 }
             }

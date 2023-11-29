@@ -41,7 +41,7 @@ else
 
                 <div class="profile-stats">
                     <ul>
-                        <li><span class="profile-stat-count">@Model.PostCount</span> posts</li>
+                        <li><span class="profile-stat-count">@(Model.Posts != null ? Model.Posts.Count.ToString() : 0 )</span> posts</li>
                         <li><span class="profile-stat-count">@Model.FollowersCount</span> followers</li>
                         <li><span class="profile-stat-count">@Model.FollowingCount</span> following</li>
                     </ul>

@@ -15,7 +15,8 @@
         </div>
         <input asp-for="Id" type="hidden" value="@ViewBag.UserId" />
         <input asp-for="@Model.JoinDate" type="hidden" value="@Model.JoinDate"/>
-
+        
+        @*profile picture*@
         <div class="form-group mb-3">
             <label asp-for="ProfilePicture" class="form-label mt-4">Profile Picture</label>
             <h5 class="card-title">
@@ -24,25 +25,25 @@
                 </picture>
             </h5>
             <br />
-            <input class="form-control" accept="image/jpeg,image/png" type="file" asp-for="@Model.Image">
+            <input class="form-control bg-transparent" accept="image/jpeg,image/png" type="file" asp-for="@Model.Image" style="color:white; border:dashed">
             <span asp-validation-for="ProfilePicture" class="text-danger"></span>
         </div>
 
         <div class="form-floating mb-3">
-            <input asp-for="Name" class="form-control" placeholder="Name" />
+            <input asp-for="Name" class="form-control bg-transparent" style="color:white; border:dashed" placeholder="Name" />
             <label asp-for="Name" class="form-label">Name</label>
         </div>
         <div class="form-floating mb-3">
-            <input asp-for="Uname" class="form-control" placeholder="Please choose your username." />
+            <input asp-for="Uname" class="form-control bg-transparent" style="color:white; border:dashed" placeholder="Please choose your username." />
             <label asp-for="Uname" class="form-label">Username</label>
         </div>
         <div class="form-floating mb-3">
+            <textarea asp-for="Bio" class="form-control bg-transparent" style="color:white; border:dashed" rows="10" spellcheck="true"></textarea>
             <label asp-for="Bio">Bio</label>
-            <textarea asp-for="Bio" class="form-control" rows="10" spellcheck="true"></textarea>
             <span asp-validation-for="Bio" class="text-danger"></span>
         </div>
         <div class="form-floating mb-3">
-            <input asp-for="DateOfBirth" class="form-control" />
+            <input asp-for="DateOfBirth" class="form-control bg-transparent" style="color:white; border:dashed" />
             <label asp-for="DateOfBirth" class="form-label">Birthday</label>
         </div>
        <button type="submit" class="btn btn-primary">

@@ -23,7 +23,7 @@ public class ApplicationUser : IdentityUser
     [Required]
     [DataType(DataType.ImageUrl)]
     [Display(Name = "Profile Picture")]
-    public string ProfilePicture { get; set; } = "https://cdn-icons-png.flaticon.com/512/3177/3177440.png";
+    public string ProfilePicture { get; set; } = "DefaultImage.jpg";
     //public Image ProfilePicture { get; set; } = Image.FromFile("Resources\\3177440.png");
 
     [Required]

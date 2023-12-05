@@ -11,17 +11,20 @@ else
 
                 <div class="row" style="margin-left:0%; margin-top:1%;">
                     <div class="col-sm-1" style="margin-right:2%;">
-                        <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id">
-                            <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" style="min-height:100%; min-width:100%; height:100%; width:175%;" />
+                        <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" style="color:inherit; text-decoration:inherit;">
+                            <img class="img_round" src="~/ProfilePictures/@Model.ProfilePicture" style="height:69px; width:69px;" />
                         </a>
                     </div>
-                    <div class="col-sm-auto" style="">
-                        <p style="margin-left:5%; width:max-content">
-                            @Model.Name
+                    <div class="col-sm-auto">
+                        <p>
+                            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" style="margin-left:5%; width:max-content; color:inherit; text-decoration:inherit;">
+                                @Model.Name
+                            </a>
                         </p>
+
                         <p style="margin-left:5%; width:max-content; margin-top:-30%">
                             <strong>
-                                <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id">
+                                <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.Id" style="color:inherit; text-decoration:inherit;">
                                     @@@Model.Uname
                                 </a>
                             </strong>
@@ -33,14 +36,13 @@ else
                         </p>
                     </div>
                     <div class="col-xl" style="margin-left:45%;">
-                        
                     </div>
                 </div>
                 <div class="row" style="margin-left:0%; margin-top:1%;">
                     <div class="col-sm-1">
                         <span></span>
                     </div>
-                    
+
                 </div>
 
             </div>

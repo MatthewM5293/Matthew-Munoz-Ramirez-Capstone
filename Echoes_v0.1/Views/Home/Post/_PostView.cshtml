@@ -3,9 +3,12 @@
 
 @if (Model != null)
 {
-    <div class="row" style="width:fit-content;">
-        @*Post*@
+    <div>
         <partial name="_PostPartial.cshtml" for="Post" />
+    </div>
+    <div class="row">
+        @*Post*@
+        
         @*Comments*@
         <div>
             @if (Model.Post.CommentsEnabled)

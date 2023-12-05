@@ -13,7 +13,7 @@
                 <div class="col-sm-auto">
                     <p style="margin-top:3%">
                         <strong>
-                            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId">
+                            <a asp-controller="Home" asp-action="ProfilePost" asp-route-id="@Model.UserId" style="color:inherit; text-decoration:inherit;">
                                 @Model.Username
                             </a>
                         </strong>
@@ -28,7 +28,7 @@
                     @if (ViewBag.UserId == Model.UserId.ToString())
                     {
                         <div class="btn dropdown" style="width:auto;">
-                            <a class="" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                            <a class="" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="color:inherit; text-decoration:inherit;">
                                 <i class="bi bi-three-dots"></i>
                             </a>
                             <div class="dropdown-menu" style="">

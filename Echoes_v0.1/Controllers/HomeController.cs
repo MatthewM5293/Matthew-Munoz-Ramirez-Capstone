@@ -70,14 +70,14 @@ public class HomeController : Controller
         var posts = _context.PostModel.OrderByDescending(p => p.PostDate).ToList();
         var follows = _context.UserFollowModels.Where(fm => fm.CurrentUserId.Equals(new Guid(id))).ToList();
 
-        homeModel.Posts = posts;
-
         foreach (PostModel post in posts)
         {
             PopulatePost(post);
         }
+
+        homeModel.Posts = posts.Where(p => p.TimeAgo.ToString().Contains("day") == false).ToList();
         // Filter the posts for the users the current user follows
-        homeModel.FollowedPosts = posts.Where(p => follows.Select(fm => fm.FollowingUserId).Contains(p.UserId)).ToList();
+        homeModel.FollowedPosts = homeModel.Posts.Where(p => follows.Select(fm => fm.FollowingUserId).Contains(p.UserId)).ToList();
 
         return View(homeModel);
     }
@@ -176,7 +176,7 @@ public class HomeController : Controller
                 //delete old pfp
                 string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "ProfilePictures");
                 filePath += "\\" + foundUser.ProfilePicture;
-                if (System.IO.File.Exists(filePath))
+                if (System.IO.File.Exists(filePath) && !foundUser.ProfilePicture.Equals("DefaultImage.jpg"))
                 {
                     System.IO.File.Delete(filePath);
                 }
@@ -187,9 +187,9 @@ public class HomeController : Controller
             }
 
             //update posts and comments
-            if (foundUser.Uname != ap.Uname || stringFileName != null)
+            if (foundUser.Uname != ap.Uname || stringFileName != null || foundUser.Name != ap.Name)
             {
-                UpdateUserFootprint(new Guid(foundUser.Id), ap.Uname, foundUser.ProfilePicture);
+                UpdateUserFootprint(new Guid(foundUser.Id), ap.Uname, foundUser.ProfilePicture, ap.Name);
             }
 
             foundUser.Uname = ap.Uname;
@@ -266,13 +266,14 @@ public class HomeController : Controller
             userFollowing.Followers = _context.UserFollowModels.Where(fm => fm.FollowingUserId.Equals(userId)).ToList();
             var followModel = userFollowing.Followers.FirstOrDefault(fm => fm.CurrentUserId.Equals(new Guid(HttpContext.Session.GetString("UserId"))));
 
-            currentUser.FollowingCount--;
+            --currentUser.FollowingCount;
+
+            --userFollowing.FollowersCount;
 
             //update db
             _context.UserFollowModels.Remove(followModel);
             _context.ApplicationUsers.Update(currentUser);
             _context.ApplicationUsers.Update(userFollowing);
-            userFollowing.FollowersCount = userFollowing.Followers.Count();
             await _context.SaveChangesAsync();
         }
 
@@ -752,22 +753,25 @@ public class HomeController : Controller
     }
 
     //Update Posts and Comments pfp/Username when Profile is edited
-    private void UpdateUserFootprint(Guid userId, string userName, string profilePicture)
+    private void UpdateUserFootprint(Guid userId, string userName, string profilePicture, string newName)
     {
-        var posts = _context.PostModel.Where(p => p.UserId.Equals(userId));
-        var comments = _context.CommentModel.Where(c => c.UserId.Equals(userId));
+        var posts = _context.PostModel.Where(p => p.UserId == userId);
+        var comments = _context.CommentModel.Where(c => c.UserId == userId);
 
         foreach (var post in posts)
         {
             post.UserName = userName;
             post.ProfilePicture = profilePicture;
+            post.Name = newName;
             _context.PostModel.Update(post);
+            //await _context.SaveChangesAsync();
         }
 
         foreach (var comment in comments)
         {
             comment.Username = userName;
             _context.CommentModel.Update(comment);
+            //await _context.SaveChangesAsync();
         }
 
         TempData["AlertMessage"] = "Profile Successfully updated";
@@ -775,17 +779,17 @@ public class HomeController : Controller
 
     //From: https://www.thatsoftwaredude.com/content/1019/how-to-calculate-time-ago-in-c
     //Convert's Posts date into something more readable for the User
-    public static string GetTimeSince(DateTime objDateTime)
+    public static string GetTimeSince(DateTime postDateTime)
     {
         // here we are going to subtract the passed in DateTime from the current time converted to UTC
-        TimeSpan ts = DateTime.Now.Subtract(objDateTime);
+        TimeSpan ts = DateTime.Now.Subtract(postDateTime);
         int intDays = ts.Days;
         int intHours = ts.Hours;
         int intMinutes = ts.Minutes;
         int intSeconds = ts.Seconds;
 
         if (intDays > 0)
-            return string.Format("{0} days", intDays);
+            return string.Format("{0} day", intDays);
 
         if (intHours > 0)
             return string.Format("{0} hours", intHours);

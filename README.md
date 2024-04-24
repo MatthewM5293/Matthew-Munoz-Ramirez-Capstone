@@ -53,3 +53,5 @@ Ensure you have .NET Core installed. Run the following command to restore depend
   dotnet restore
 3. **Build and Run the Application**:
   dotnet run
+
+Proposal can be found [here]([url](https://docs.google.com/document/d/1l50Rgaw3SoyY0OYFfwPi3vEt_3WnJXJ02Mse5U4Sv4g/edit?usp=sharing))

@@ -1,7 +1,6 @@
 # Echo
 
 ![echo-high-resolution-logo](https://github.com/MatthewM5293/Matthew-Munoz-Ramirez-Capstone/assets/98625233/06b9aebe-342e-49a5-90db-8d5774e30608)
-![echo-high-resolution-logo](https://github.com/MatthewM5293/Matthew-Munoz-Ramirez-Capstone/assets/98625233/06b9aebe-342e-49a5-90db-8d5774e30608)
 
 
 ## Overview

@@ -1,5 +1,9 @@
 # Echo
 
+![echo-high-resolution-logo-transparent](https://github.com/MatthewM5293/Matthew-Munoz-Ramirez-Capstone/assets/98625233/d48a1dd2-dea1-4f26-840e-5221190fe943)
+
+
+
 ## Overview
 Echo is a platform designed for users to interact with each other from across the globe. It allows users to create posts that are visible on a public feed for 24-48 hours before disappearing. Unlike other social media platforms, Echo focuses on the present and current events, encouraging users to engage with the here and now.
 

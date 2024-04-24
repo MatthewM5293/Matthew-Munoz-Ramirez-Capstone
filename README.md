@@ -54,4 +54,16 @@ Ensure you have .NET Core installed. Run the following command to restore depend
 3. **Build and Run the Application**:
   dotnet run
 
-Project Proposal can be found [here](https://docs.google.com/document/d/1l50Rgaw3SoyY0OYFfwPi3vEt_3WnJXJ02Mse5U4Sv4g/edit?usp=sharing)
+## Contributing
+Contributions are welcome! If you'd like to contribute to Echo, please follow these steps:
+
+Fork the Repository.
+Create a New Branch: Name your branch after the feature or fix you're working on.
+Make Your Changes.
+Submit a Pull Request: Describe your changes and reference any related issues.
+
+
+
+Project Proposal can be found [here](https://docs.google.com/document/d/1l50Rgaw3SoyY0OYFfwPi3vEt_3WnJXJ02Mse5U4Sv4g/edit?usp=sharing).
+
+
